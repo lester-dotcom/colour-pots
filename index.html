@@ -1261,13 +1261,18 @@ function alphaMask(img, w, h) {
   return c;
 }
 document.querySelectorAll('input[name="hints"]').forEach(r => r.addEventListener('change', () => { prep.hints = +r.value; }));
-function loadImage(file) {
-  return new Promise((res, rej) => {
-    const url = URL.createObjectURL(file), img = new Image();
-    img.onload = () => { res(img); setTimeout(() => URL.revokeObjectURL(url), 1000); };
-    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('decode')); };
-    img.src = url;
-  });
+// Some viewers block one way of reading a picture, so try three in turn
+function imgFrom(src) {
+  return new Promise((res, rej) => { const img = new Image(); img.onload = () => res(img); img.onerror = () => rej(new Error('decode')); img.src = src; });
+}
+function readAsDataURL(file) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(file); });
+}
+async function loadImage(file) {
+  if (window.createImageBitmap) { try { const bmp = await createImageBitmap(file); if (bmp.width && bmp.height) return bmp; } catch (e) {} }
+  let url = null;
+  try { url = URL.createObjectURL(file); return await imgFrom(url); } catch (e) {} finally { if (url) setTimeout(() => URL.revokeObjectURL(url), 1000); }
+  return imgFrom(await readAsDataURL(file));
 }
 el('camera').addEventListener('change', e => onPhoto(e, 'Photo ' + (lib.length + 1)));
 el('cameraLabel').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el('camera').click(); } });
