@@ -222,6 +222,19 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
 :root [data-bg="night"]{background:radial-gradient(#FFFFFF 1px,transparent 1.6px) 0 0/37px 37px,radial-gradient(rgba(255,255,255,.55) 1px,transparent 1.6px) 18px 22px/53px 53px,#141838}
 :root [data-bg="sunset"]{background:linear-gradient(180deg,#FFB385,#FF7E8A 55%,#8E5BB3)}
 :root [data-bg="confetti"]{background:radial-gradient(#F2545B 3px,transparent 3.5px) 0 0/46px 46px,radial-gradient(#FFC233 3px,transparent 3.5px) 15px 23px/46px 46px,radial-gradient(#4A7BF7 3px,transparent 3.5px) 30px 8px/46px 46px,radial-gradient(#3FB37F 3px,transparent 3.5px) 8px 36px/46px 46px,#FFF7EC}
+#play{position:relative}
+.music-menu{position:absolute;top:64px;right:max(16px,env(safe-area-inset-right,0px));z-index:15;background:var(--surface);border-radius:18px;box-shadow:0 0 0 1px var(--line),0 16px 40px var(--shade);padding:8px;width:min(280px,calc(100% - 32px));max-height:calc(100% - 140px);overflow-y:auto}
+.mm-head{font:800 18px var(--f-display);padding:8px 10px 6px}
+.mtrack{display:flex;align-items:center;gap:12px;width:100%;border:0;background:transparent;color:var(--ink);text-align:left;padding:9px 10px;border-radius:12px;cursor:pointer;font:inherit}
+.mtrack:hover{background:var(--bg)}
+.mtrack[aria-pressed="true"]{background:var(--bg)}
+.mt-dot{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--line);flex:none}
+.mtrack[aria-pressed="true"] .mt-dot{box-shadow:inset 0 0 0 6px var(--accent)}
+.mt-txt{display:flex;flex-direction:column;min-width:0}
+.mt-txt b{font-size:15px}
+.mt-txt small{font-size:12px;color:var(--muted)}
+.mm-vol{display:flex;align-items:center;gap:10px;padding:10px;font-size:14px;font-weight:600;color:var(--muted)}
+.mm-vol input{flex:1;accent-color:var(--accent)}
 .edit-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
 .slide{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--muted);flex:1 1 200px;min-width:0}
 .slide input{flex:1;min-width:0;accent-color:var(--accent)}
@@ -449,6 +462,11 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
       <button class="icon-btn" id="hintBtn" aria-label="Show the shapes left for this colour"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M20 20l-5-5"/></svg><span class="hint-n" id="hintN">3</span></button>
       <button class="icon-btn" id="musicBtn" aria-label="Music off"></button>
       <button class="icon-btn" id="soundBtn" aria-label="Sound on"></button>
+    </div>
+    <div class="music-menu" id="musicMenu" hidden>
+      <div class="mm-head">Music</div>
+      <div id="musicList"></div>
+      <label class="mm-vol" for="musicVol"><span>Volume</span><input type="range" id="musicVol" min="5" max="100" value="60"></label>
     </div>
     <div class="board" id="board">
       <canvas id="cv"></canvas>
@@ -1715,50 +1733,129 @@ const sfx = {
   }
 };
 
-// Relaxing music: slow pad chords plus the odd soft bell, all made live in the browser
-const music = { master: null, input: null, timer: 0, next: 0, bellNext: 0, chord: 0 };
+// Music: six tracks, all made live in the browser with no audio files
+const TRACKS = [
+  { id: 'calm', name: 'Calm chords', note: 'Slow chords and soft bells' },
+  { id: 'musicbox', name: 'Music box', note: 'A gentle tinkly lullaby' },
+  { id: 'playful', name: 'Playful plucks', note: 'Bouncy and upbeat' },
+  { id: 'rain', name: 'Rainy day', note: 'Soft rain and slow notes' },
+  { id: 'waves', name: 'Ocean waves', note: 'Rolling waves and a distant hum' },
+  { id: 'space', name: 'Space dreams', note: 'Floaty chords and echoes' }
+];
+if (!TRACKS.some(t => t.id === audioPref.track)) audioPref.track = 'calm';
+if (audioPref.vol == null) audioPref.vol = 60;
+const music = { master: null, input: null, dry: null, timer: 0, next: 0, bellNext: 0, chord: 0, step: 0, phrase: [], sources: [], track: null };
 const CHORDS = [[130.81, 164.81, 196, 246.94], [110, 130.81, 164.81, 196], [87.31, 110, 130.81, 164.81], [98, 123.47, 146.83, 164.81]];
 const BELLS = [523.25, 587.33, 659.25, 783.99, 880, 1046.5];
-function padNote(f, t, dur) {
+const PENTA = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51];
+const MINOR = [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25];
+const SPACE_CH = [[146.83, 220, 261.63, 329.63], [130.81, 196, 233.08, 293.66], [116.54, 174.61, 220, 261.63], [130.81, 164.81, 196, 293.66]];
+const PLAY_CH = [[261.63, 329.63, 392], [196, 246.94, 293.66], [220, 261.63, 329.63], [174.61, 220, 261.63]];
+const musicLevel = () => Math.max(0.0001, audioPref.vol / 100);
+function padNote(f, t, dur, vol = 1, det = 5) {
   const a = AC;
-  [['sine', 0, 0.05], ['triangle', 5, 0.022]].forEach(([type, det, v]) => {
+  [['sine', 0, 0.05 * vol], ['triangle', det, 0.022 * vol]].forEach(([type, dt, v]) => {
     const o = a.createOscillator(), g = a.createGain();
-    o.type = type; o.frequency.value = f; o.detune.value = det;
+    o.type = type; o.frequency.value = f; o.detune.value = dt;
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v, t + 2.5); g.gain.setValueAtTime(v, t + dur - 1); g.gain.linearRampToValueAtTime(0.0001, t + dur + 1.8);
     o.connect(g).connect(music.input); o.start(t); o.stop(t + dur + 2);
   });
 }
-function bellAt(f, t) {
+function mnote(f, t, vol, len, type = 'sine', over = 2.003, overVol = 0.22) {
   const a = AC;
-  [[f, 0.032], [f * 2.003, 0.007]].forEach(([fr, v]) => {
+  [[f, type, vol], [f * over, 'sine', vol * overVol]].forEach(([fr, ty, v]) => {
     const o = a.createOscillator(), g = a.createGain();
-    o.type = 'sine'; o.frequency.value = fr;
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 3);
-    o.connect(g).connect(music.input); o.start(t); o.stop(t + 3.1);
+    o.type = ty; o.frequency.value = fr;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    o.connect(g).connect(music.input); o.start(t); o.stop(t + len + 0.05);
   });
 }
-function scheduleMusic() {
-  const a = AC; if (!a || !music.master) return;
-  const ahead = a.currentTime + 1.2;
-  while (music.next < ahead) { CHORDS[music.chord % 4].forEach(f => padNote(f, music.next, 8)); music.chord++; music.next += 8; }
-  while (music.bellNext < ahead) { bellAt(BELLS[Math.floor(Math.random() * BELLS.length)], music.bellNext); music.bellNext += 1.6 + Math.random() * 2.8; }
+let noiseBuf = null;
+function getNoise() {
+  if (!noiseBuf) { const a = AC; noiseBuf = a.createBuffer(1, a.sampleRate * 2, a.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  return noiseBuf;
 }
+function noiseSource() { const s = AC.createBufferSource(); s.buffer = getNoise(); s.loop = true; music.sources.push(s); return s; }
+function tick(t, vol) {
+  const a = AC, s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = getNoise(); f.type = 'highpass'; f.frequency.value = 7000;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+  s.connect(f).connect(g).connect(music.dry); s.start(t, Math.random()); s.stop(t + 0.06);
+}
+const TRACK_PLAY = {
+  calm(ahead) {
+    while (music.next < ahead) { CHORDS[music.chord % 4].forEach(f => padNote(f, music.next, 8)); music.chord++; music.next += 8; }
+    while (music.bellNext < ahead) { bellAt(BELLS[Math.floor(Math.random() * BELLS.length)], music.bellNext); music.bellNext += 1.6 + Math.random() * 2.8; }
+  },
+  musicbox(ahead) {
+    const beat = 0.42;
+    while (music.next < ahead) {
+      if (music.step % 16 === 0) { let k = 3; music.phrase = []; for (let i = 0; i < 16; i++) { k = Math.max(0, Math.min(7, k + [-2, -1, -1, 0, 1, 1, 2][Math.floor(Math.random() * 7)])); music.phrase.push(i % 4 === 3 && Math.random() < 0.5 ? -1 : k); } }
+      const k = music.phrase[music.step % 16];
+      if (k >= 0) mnote(PENTA[k] * 2, music.next, 0.045, 1.6, 'sine', 3.01, 0.15);
+      if (music.step % 8 === 0) { const root = [130.81, 110, 87.31, 98][(music.step / 8 | 0) % 4]; mnote(root, music.next, 0.05, 3, 'sine', 2, 0.2); }
+      music.step++; music.next += beat;
+    }
+  },
+  playful(ahead) {
+    const beat = 0.3;
+    while (music.next < ahead) {
+      const s = music.step % 8, ch = PLAY_CH[(music.step / 8 | 0) % 4];
+      if (s === 0 || s === 4) mnote(ch[0] / 2, music.next, 0.07, 0.5, 'triangle', 2, 0.1);
+      if (s === 2 || s === 6) ch.forEach((f, i) => mnote(f, music.next + i * 0.02, 0.03, 0.45, 'triangle', 2, 0.15));
+      if (Math.random() < 0.45) mnote(ch[Math.floor(Math.random() * 3)] * 2, music.next + beat / 2, 0.035, 0.35, 'sine', 2, 0.2);
+      if (s % 2 === 1) tick(music.next, 0.035);
+      music.step++; music.next += beat;
+    }
+  },
+  rain(ahead) {
+    while (music.next < ahead) { const f = MINOR[Math.floor(Math.random() * MINOR.length)]; mnote(f, music.next, 0.05, 2.8, 'triangle', 2, 0.12); if (Math.random() < 0.35) mnote(f * 1.5, music.next + 0.18, 0.025, 2.2, 'triangle', 2, 0.1); music.next += 1.8 + Math.random() * 2.4; }
+    while (music.bellNext < ahead) { [[220, 261.63, 329.63], [174.61, 220, 261.63], [261.63, 329.63, 392], [196, 246.94, 293.66]][music.chord % 4].forEach(f => padNote(f, music.bellNext, 12, 0.5)); music.chord++; music.bellNext += 12; }
+  },
+  waves(ahead) {
+    while (music.next < ahead) {
+      const len = 7 + Math.random() * 4, t = music.next, g = music.waveGain.gain, f = music.waveFilter.frequency;
+      g.setValueAtTime(0.012, t); g.linearRampToValueAtTime(0.14, t + len * 0.45); g.linearRampToValueAtTime(0.012, t + len);
+      f.setValueAtTime(350, t); f.linearRampToValueAtTime(1300, t + len * 0.45); f.linearRampToValueAtTime(350, t + len);
+      music.next += len;
+    }
+    while (music.bellNext < ahead) { CHORDS[music.chord % 4].forEach(f => padNote(f, music.bellNext, 10, 0.45)); music.chord++; music.bellNext += 10; }
+  },
+  space(ahead) {
+    while (music.next < ahead) { SPACE_CH[music.chord % 4].forEach(f => padNote(f, music.next, 12, 0.9, 14)); music.chord++; music.next += 12; }
+    while (music.bellNext < ahead) { const f = [1174.66, 880, 1396.91, 1046.5, 1567.98][Math.floor(Math.random() * 5)]; mnote(f, music.bellNext, 0.03, 2.4, 'sine', 2.5, 0.1); music.bellNext += 2.5 + Math.random() * 3.5; }
+  }
+};
+function bellAt(f, t) { mnote(f, t, 0.032, 3, 'sine', 2.003, 0.22); }
+function scheduleMusic() { const a = AC; if (!a || !music.master) return; TRACK_PLAY[music.track](a.currentTime + 1.2); }
 function startMusic() {
   const a = ctxA(); if (!a || music.master) return;
-  const m = a.createGain(), lp = a.createBiquadFilter(), dl = a.createDelay(1), fb = a.createGain(), wet = a.createGain();
-  m.gain.setValueAtTime(0.0001, a.currentTime); m.gain.exponentialRampToValueAtTime(0.6, a.currentTime + 3);
-  lp.type = 'lowpass'; lp.frequency.value = 2200; dl.delayTime.value = 0.38; fb.gain.value = 0.35; wet.gain.value = 0.3;
-  lp.connect(m); lp.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(m); m.connect(a.destination);
-  music.master = m; music.input = lp; music.next = a.currentTime + 0.1; music.bellNext = a.currentTime + 2.5; music.chord = 0;
+  const tr = audioPref.track, m = a.createGain(), lp = a.createBiquadFilter(), dl = a.createDelay(1.5), fb = a.createGain(), wet = a.createGain(), dry = a.createGain();
+  m.gain.setValueAtTime(0.0001, a.currentTime); m.gain.exponentialRampToValueAtTime(musicLevel(), a.currentTime + 2.5);
+  lp.type = 'lowpass'; lp.frequency.value = tr === 'playful' ? 5000 : 2400;
+  dl.delayTime.value = tr === 'space' ? 0.62 : tr === 'playful' ? 0.3 : 0.38; fb.gain.value = tr === 'space' ? 0.55 : tr === 'playful' ? 0.18 : 0.35; wet.gain.value = tr === 'space' ? 0.45 : 0.28;
+  lp.connect(m); lp.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(m); dry.connect(m); m.connect(a.destination);
+  Object.assign(music, { master: m, input: lp, dry, track: tr, next: a.currentTime + 0.1, bellNext: a.currentTime + 2.5, chord: 0, step: 0, sources: [] });
+  if (tr === 'rain') {
+    const n1 = noiseSource(), b1 = a.createBiquadFilter(), g1 = a.createGain(); b1.type = 'bandpass'; b1.frequency.value = 2200; b1.Q.value = 0.6; g1.gain.value = 0.07;
+    const n2 = noiseSource(), b2 = a.createBiquadFilter(), g2 = a.createGain(); b2.type = 'highpass'; b2.frequency.value = 6000; g2.gain.value = 0.02;
+    n1.connect(b1).connect(g1).connect(dry); n2.connect(b2).connect(g2).connect(dry); n1.start(); n2.start(a.currentTime, 0.7);
+    music.next = a.currentTime + 1.5; music.bellNext = a.currentTime + 0.5;
+  }
+  if (tr === 'waves') {
+    const n = noiseSource(), f = a.createBiquadFilter(), g = a.createGain(); f.type = 'lowpass'; f.frequency.value = 400; g.gain.value = 0.012;
+    n.connect(f).connect(g).connect(dry); n.start(); music.waveGain = g; music.waveFilter = f; music.bellNext = a.currentTime + 1;
+  }
   music.timer = setInterval(scheduleMusic, 250); scheduleMusic();
 }
 function stopMusic() {
   if (!music.master) return;
-  const a = AC, m = music.master;
-  clearInterval(music.timer); music.master = null;
-  m.gain.cancelScheduledValues(a.currentTime); m.gain.setValueAtTime(Math.max(0.0001, m.gain.value), a.currentTime); m.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 1.2);
-  setTimeout(() => m.disconnect(), 1500);
+  const a = AC, m = music.master, srcs = music.sources;
+  clearInterval(music.timer); music.master = null; music.sources = [];
+  m.gain.cancelScheduledValues(a.currentTime); m.gain.setValueAtTime(Math.max(0.0001, m.gain.value), a.currentTime); m.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 1);
+  setTimeout(() => { srcs.forEach(s => { try { s.stop(); } catch (e) {} }); m.disconnect(); }, 1200);
 }
+function setMusicVolume() { if (music.master && AC) { const g = music.master.gain; g.cancelScheduledValues(AC.currentTime); g.setValueAtTime(Math.max(0.0001, g.value), AC.currentTime); g.linearRampToValueAtTime(musicLevel(), AC.currentTime + 0.2); } }
 // browsers only allow sound after a tap, so music saved as "on" starts at the first touch
 document.addEventListener('pointerdown', () => { if (audioPref.music && !music.master) startMusic(); });
 
@@ -1772,7 +1869,25 @@ function paintSoundBtn() {
   b.classList.toggle('dim', !audioPref.sfx);
 }
 el('soundBtn').addEventListener('click', () => { audioPref.sfx = !audioPref.sfx; saveAudio(); paintSoundBtn(); if (audioPref.sfx) sfx.pick(); });
-el('musicBtn').addEventListener('click', () => { audioPref.music = !audioPref.music; saveAudio(); paintSoundBtn(); if (audioPref.music) startMusic(); else stopMusic(); });
+function renderMusicMenu() {
+  const list = el('musicList'); list.innerHTML = '';
+  const opts = [{ id: 'off', name: 'No music', note: 'Peace and quiet' }, ...TRACKS];
+  for (const t of opts) {
+    const on = t.id === 'off' ? !audioPref.music : audioPref.music && audioPref.track === t.id;
+    const b = document.createElement('button'); b.className = 'mtrack'; b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.innerHTML = '<span class="mt-dot"></span><span class="mt-txt"><b>' + t.name + '</b><small>' + t.note + '</small></span>';
+    b.addEventListener('click', () => {
+      if (t.id === 'off') { audioPref.music = false; stopMusic(); }
+      else { const change = audioPref.track !== t.id || !music.master; audioPref.music = true; audioPref.track = t.id; if (change) { stopMusic(); setTimeout(startMusic, music.master ? 0 : 50); } }
+      saveAudio(); paintSoundBtn(); renderMusicMenu();
+    });
+    list.appendChild(b);
+  }
+  el('musicVol').value = audioPref.vol;
+}
+el('musicBtn').addEventListener('click', e => { e.stopPropagation(); const m = el('musicMenu'); if (m.hidden) { renderMusicMenu(); m.hidden = false; } else m.hidden = true; });
+el('musicVol').addEventListener('input', e => { audioPref.vol = +e.target.value; saveAudio(); setMusicVolume(); });
+document.addEventListener('pointerdown', e => { const m = el('musicMenu'); if (!m.hidden && !m.contains(e.target) && e.target.closest('#musicBtn') == null) m.hidden = true; });
 paintSoundBtn();
 
 /* ---------------- game ---------------- */
