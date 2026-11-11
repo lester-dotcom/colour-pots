@@ -178,6 +178,49 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
 .theme[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--ink)}
 .theme i{width:12px;height:12px;border-radius:50%;margin-right:-4px;box-shadow:0 0 0 2px var(--surface)}
 .page-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.trophy-btn{margin-left:auto;display:inline-flex;align-items:center;gap:6px;border:0;background:var(--surface);color:var(--ink);font:700 14px var(--f-body);padding:8px 14px;border-radius:999px;box-shadow:inset 0 0 0 2px var(--line);cursor:pointer;font-variant-numeric:tabular-nums}
+.trophy-body{padding-bottom:40px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:8px 0 28px}
+.stat{background:var(--surface);border-radius:16px;padding:14px 16px;box-shadow:0 0 0 1px var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat b{font:800 24px var(--f-display);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat span{font-size:13px;color:var(--muted)}
+.trophy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:28px}
+.trophy{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border-radius:16px;padding:14px;box-shadow:0 0 0 1px var(--line)}
+.trophy svg{flex:none}
+.t-body{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.t-body b{font-size:16px}
+.t-desc{font-size:13px;color:var(--muted)}
+.t-bar{height:6px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:4px}
+.t-bar i{display:block;height:100%;background:var(--accent)}
+.t-num{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.t-rw{font-size:12px;font-weight:600;color:var(--ink);margin-top:2px}
+.trophy.locked b{color:var(--muted)}
+.bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:28px}
+.bgopt{display:flex;flex-direction:column;gap:4px;text-align:left;border:0;background:var(--surface);color:var(--ink);padding:8px 8px 10px;border-radius:16px;box-shadow:0 0 0 1px var(--line);cursor:pointer;font:600 14px var(--f-body)}
+.bgopt[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink)}
+.bgopt small{font-weight:500;font-size:12px;color:var(--muted)}
+.bgopt.locked .bgprev{opacity:.4}
+.bgprev{display:block;height:70px;border-radius:10px;margin-bottom:4px;background:var(--bg);background-image:radial-gradient(var(--line) 1.2px,transparent 1.3px);background-size:20px 20px;box-shadow:inset 0 0 0 1px var(--line)}
+.set-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.setrow{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:14px;padding:10px 14px;box-shadow:0 0 0 1px var(--line);flex-wrap:wrap}
+.setrow .sw{display:flex}
+.setrow .sw i{width:16px;height:16px;border-radius:50%;margin-right:-5px;box-shadow:0 0 0 2px var(--surface)}
+.setrow b{margin-left:6px}
+.setrow small{margin-left:auto;color:var(--muted);font-size:12px}
+.setrow.locked .sw{opacity:.35}
+.theme.locked{opacity:.5}
+.done-trophies{display:flex;flex-direction:column;gap:8px;margin:-6px 0 16px;text-align:left}
+.done-trophies:empty{display:none}
+.dt{display:flex;gap:10px;align-items:center;background:var(--bg);border-radius:14px;padding:8px 12px}
+.dt svg{width:40px;height:40px;flex:none}
+.dt div{display:flex;flex-direction:column}
+.dt span{font-size:13px;color:var(--muted)}
+:root [data-bg="wood"]{background:repeating-linear-gradient(100deg,rgba(0,0,0,.09) 0 3px,transparent 3px 22px),repeating-linear-gradient(100deg,rgba(255,255,255,.07) 0 1px,transparent 1px 47px),#9A6A44}
+:root [data-bg="graph"]{background:linear-gradient(#C9D8F5 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,#C9D8F5 1px,transparent 1px) 0 0/22px 22px,#F7FAFF}
+:root [data-bg="grass"]{background:repeating-linear-gradient(90deg,rgba(255,255,255,.09) 0 40px,transparent 40px 80px),#5BAA4E}
+:root [data-bg="night"]{background:radial-gradient(#FFFFFF 1px,transparent 1.6px) 0 0/37px 37px,radial-gradient(rgba(255,255,255,.55) 1px,transparent 1.6px) 18px 22px/53px 53px,#141838}
+:root [data-bg="sunset"]{background:linear-gradient(180deg,#FFB385,#FF7E8A 55%,#8E5BB3)}
+:root [data-bg="confetti"]{background:radial-gradient(#F2545B 3px,transparent 3.5px) 0 0/46px 46px,radial-gradient(#FFC233 3px,transparent 3.5px) 15px 23px/46px 46px,radial-gradient(#4A7BF7 3px,transparent 3.5px) 30px 8px/46px 46px,radial-gradient(#3FB37F 3px,transparent 3.5px) 8px 36px/46px 46px,#FFF7EC}
 .edit-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
 .slide{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--muted);flex:1 1 200px;min-width:0}
 .slide input{flex:1;min-width:0;accent-color:var(--accent)}
@@ -234,6 +277,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
       <header class="brand">
         <span class="dots"><i style="background:#F2545B"></i><i style="background:#FFC233"></i><i style="background:#3FB37F"></i><i style="background:#4A7BF7"></i></span>
         <b>Colour Pots</b>
+        <button class="trophy-btn" id="trophyOpen" aria-label="Trophies and stats"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg><span id="trophyNum">0/18</span></button>
       </header>
       <div class="hero">
         <div>
@@ -381,6 +425,22 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
     </div>
   </section>
 
+  <section id="trophies" class="screen scroll" hidden>
+    <div class="bar">
+      <button class="icon-btn" id="trophyBack" aria-label="Back to my pictures"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2>Trophies and stats</h2>
+    </div>
+    <div class="wrap trophy-body">
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="shelf-head"><h2>Trophies</h2><span id="trophyCount"></span></div>
+      <div class="trophy-grid" id="trophyGrid"></div>
+      <div class="shelf-head"><h2>Backgrounds</h2><span>Shown around the picture while you colour</span></div>
+      <div class="bg-grid" id="bgGrid"></div>
+      <div class="shelf-head"><h2>Colouring page sets</h2><span>Used when you upload a colouring page</span></div>
+      <div class="set-grid" id="setGrid"></div>
+    </div>
+  </section>
+
   <section id="play" class="screen" hidden>
     <div class="bar play-tight">
       <button class="icon-btn" id="playBack" aria-label="Back to my pictures"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -408,6 +468,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
     <div class="pic"><canvas id="doneCv"></canvas></div>
     <h2 id="doneTitle">You did it!</h2>
     <p id="doneMsg">Every shape is painted.</p>
+    <div class="done-trophies" id="doneTrophies"></div>
     <div class="row">
       <button class="btn" id="doneAgain">Colour it again</button>
       <button class="btn primary" id="doneHome">My pictures</button>
@@ -636,7 +697,11 @@ const THEMES = {
   Garden: { bg: '#E9F5DB', cols: ['#F28AB2', '#F6C344', '#4C9F70', '#A78BDA', '#F59E62', '#7EC8E3', '#E85D75', '#B5D99C', '#FFD6A5', '#C08552', '#9AD1D4', '#6A994E'] },
   Ocean: { bg: '#E3F4FB', cols: ['#0077B6', '#00B4D8', '#90E0EF', '#FF7F50', '#2A9D8F', '#F4D35E', '#FFB4A2', '#264653', '#48CAE4', '#E76F51', '#B8E0D2', '#5E548E'] },
   Sunset: { bg: '#FFF1E0', cols: ['#F94144', '#F3722C', '#F8961E', '#F9C74F', '#E56B6F', '#B56576', '#6D597A', '#355070', '#FFB4A2', '#EAAC8B', '#9D4EDD', '#FF6D00'] },
-  Pastel: { bg: '#FBF7FF', cols: ['#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF', '#BDB2FF', '#FFC6FF', '#E4C1F9', '#D0F4DE', '#FCF6BD', '#A9DEF9'] }
+  Pastel: { bg: '#FBF7FF', cols: ['#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF', '#BDB2FF', '#FFC6FF', '#E4C1F9', '#D0F4DE', '#FCF6BD', '#A9DEF9'] },
+  Autumn: { bg: '#FFF3E0', cols: ['#9C2C13', '#D9822B', '#E8B04B', '#6B4226', '#A3B18A', '#588157', '#BC6C25', '#DDA15E', '#7F5539', '#B23A48', '#F4A259', '#5C4033'] },
+  Jewel: { bg: '#F3EEF9', cols: ['#7B2CBF', '#C1121F', '#0F4C5C', '#E09F3E', '#1B998B', '#5F0F40', '#3A86FF', '#9E0059', '#FFB703', '#2B9348', '#6A4C93', '#D00000'] },
+  Neon: { bg: '#22223B', cols: ['#FF006E', '#FB5607', '#FFBE0B', '#3A86FF', '#8338EC', '#06D6A0', '#F72585', '#4CC9F0', '#B5179E', '#7FFF00', '#00F5D4', '#FEE440'] },
+  Candy: { bg: '#FFF0F6', cols: ['#FF8FAB', '#FFB3C6', '#CDB4DB', '#BDE0FE', '#A2D2FF', '#FFC8DD', '#FFD6A5', '#CAFFBF', '#FDFFB6', '#9BF6FF', '#E0AAFF', '#F7A072'] }
 };
 const INK = '#26283A';
 // A colouring page is mostly near-white with very little colour in it
@@ -1055,7 +1120,7 @@ function saveLib() {
 }
 function makeRecord(res, name) {
   const now = Date.now();
-  return { id: now.toString(36) + Math.random().toString(36).slice(2, 6), name, level: res.level, style: res.style, fixed: res.fixed == null ? null : res.fixed, W: res.W, H: res.H, pal: res.palette, data: enc(res.colorOf), fill: '', pct: 0, created: now, updated: now };
+  return { id: now.toString(36) + Math.random().toString(36).slice(2, 6), name, level: res.level, style: res.style, source: prep.source || null, fixed: res.fixed == null ? null : res.fixed, W: res.W, H: res.H, pal: res.palette, data: enc(res.colorOf), fill: '', pct: 0, created: now, updated: now };
 }
 
 let toastT = 0;
@@ -1067,7 +1132,7 @@ function toast(msg) {
 }
 
 /* ---------------- screens ---------------- */
-function show(id) { ['home', 'prep', 'crop', 'tidy', 'play'].forEach(s => el(s).hidden = s !== id); }
+function show(id) { ['home', 'prep', 'crop', 'tidy', 'play', 'trophies'].forEach(s => el(s).hidden = s !== id); }
 
 /* ---------------- home ---------------- */
 function drawThumb(rec, canvas) {
@@ -1087,6 +1152,7 @@ function drawThumb(rec, canvas) {
 }
 
 function renderHome() {
+  if (typeof paintTrophyBtn === 'function') paintTrophyBtn();
   const g = el('gallery'); g.innerHTML = '';
   const sorted = [...lib].sort((a, b) => b.updated - a.updated);
   el('shelfCount').textContent = sorted.length === 1 ? '1 picture' : sorted.length + ' pictures';
@@ -1151,6 +1217,7 @@ function renderLibrary() {
   }
 }
 function startFromLibrary(a) {
+  prep.source = { type: 'library', cat: a.cat };
   prep.full = artCache.get(a.id) || artCanvas(a);
   el('prepName').value = a.name;
   crop.rect = { x: 0, y: 0, w: prep.full.width, h: prep.full.height };
@@ -1189,6 +1256,7 @@ el('file').addEventListener('change', e => onPhoto(e));
 async function onPhoto(e, forcedName) {
   const f = e.target.files && e.target.files[0]; e.target.value = '';
   if (!f) return;
+  prep.source = { type: 'photo' };
   try {
     const img = await loadImage(f);
     prep.full = makeSource(img, 1400);
@@ -1322,7 +1390,7 @@ prep.theme = 'Rainbow'; prep.seed = 1; prep.lineArt = false; prep.usePage = fals
   for (const [name, t] of Object.entries(THEMES)) {
     const b = document.createElement('button'); b.className = 'theme'; b.dataset.t = name;
     b.innerHTML = '<span>' + t.cols.slice(0, 4).map(c => '<i style="background:' + c + '"></i>').join('') + '</span>' + name;
-    b.addEventListener('click', () => { prep.theme = name; regen(); });
+    b.addEventListener('click', () => { if (!hasReward('set', name)) { const t = rewardFrom('set', name); toast('Earn the ' + t.name + ' trophy to unlock ' + name + ' colours. ' + t.desc + '.'); return; } prep.theme = name; regen(); });
     box.appendChild(b);
   }
 })();
@@ -1332,7 +1400,7 @@ function paintPageSet() {
   el('themeChips').hidden = !prep.usePage; el('shuffleBtn').hidden = !prep.usePage;
   el('pageNote').textContent = prep.usePage ? 'Colouring page spotted, so colours have been picked for you. Choose a colour set, or shuffle for a new mix.' : 'This looks like a colouring page. Switch back to have colours picked for you.';
   el('pageToggle').textContent = prep.usePage ? 'Treat as a photo instead' : 'Use as a colouring page';
-  document.querySelectorAll('.theme').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === prep.theme ? 'true' : 'false'));
+  document.querySelectorAll('.theme').forEach(b => { b.setAttribute('aria-pressed', b.dataset.t === prep.theme ? 'true' : 'false'); b.classList.toggle('locked', !hasReward('set', b.dataset.t)); });
 }
 el('shuffleBtn').addEventListener('click', () => { prep.seed++; regen(); });
 el('pageToggle').addEventListener('click', () => { prep.usePage = !prep.usePage; regen(); });
@@ -1948,6 +2016,11 @@ function checkMilestone() {
 function fillRegion(r, tx, ty) {
   const reg = G.regions[r], c = reg.color, W = G.W;
   G.filled[r] = 1; G.done[c]++; G.filledCount++;
+  const nowT = Date.now(), dt = Math.min(nowT - (G.lastTick || nowT), 60000);
+  G.rec.timeMs = (G.rec.timeMs || 0) + dt; G.lastTick = nowT;
+  stats.shapes++; stats.timeMs += dt; if (G.done[c] === G.totals[c]) stats.colours++;
+  touchDay(); saveStats();
+  if (G.filledCount < G.playable) trophyToast(checkTrophies());
   const px = Array.from(G.pix.subarray(reg.start, reg.start + reg.size));
   const dd = new Map(); for (const q of px) { const dx = q % W + 0.5 - tx, dy = ((q / W) | 0) + 0.5 - ty; dd.set(q, dx * dx + dy * dy); }
   px.sort((a, b) => dd.get(a) - dd.get(b));
@@ -2003,6 +2076,14 @@ function persist(now) {
 
 /* finishing */
 function finish() {
+  const rec = G.rec, lvl = rec.level || 'medium';
+  stats.finished++; stats.byLevel[lvl] = (stats.byLevel[lvl] || 0) + 1;
+  if (!(rec.hintsUsed > 0)) stats.noHints++;
+  if (rec.style === 'page') stats.pages++;
+  if (rec.source && rec.source.type === 'photo') stats.own++;
+  if (rec.source && rec.source.cat === 'Patterns') stats.patterns++;
+  const tm = rec.timeMs || 0; G.newBest = tm > 0 && (!stats.fastest[lvl] || tm < stats.fastest[lvl]); if (G.newBest) stats.fastest[lvl] = tm;
+  G.news = checkTrophies(); saveStats(true); paintTrophyBtn();
   persist(true);
   setTimeout(() => {
     if (!G) return;
@@ -2017,11 +2098,15 @@ function showDone() {
   const c = el('doneCv'); c.width = G.W; c.height = G.H; c.getContext('2d').drawImage(G.paint, 0, 0);
   const sc = Math.max(1, Math.floor(360 / Math.max(G.W, G.H)));
   c.style.width = G.W * sc + 'px';
-  el('doneMsg').textContent = 'All ' + G.playable + ' shapes painted in ' + (G.pal.length - (G.fixed >= 0 ? 1 : 0)) + ' colours.';
+  const lvlName = (LEVELS[G.rec.level] || LEVELS.medium).label;
+  el('doneMsg').textContent = 'All ' + G.playable + ' shapes painted in ' + (G.pal.length - (G.fixed >= 0 ? 1 : 0)) + ' colours'
+    + (G.rec.timeMs ? ', in ' + fmtTime(G.rec.timeMs) + (G.newBest ? '. A new best for ' + lvlName + '!' : '.') : '.');
+  el('doneTrophies').innerHTML = (G.news || []).map(t => '<div class="dt">' + medal(true) + '<div><b>New trophy: ' + t.name + '</b>' + (t.reward ? '<span>Unlocked the ' + rewardText(t) + '</span>' : '<span>' + t.desc + '</span>') + '</div></div>').join('');
+  G.news = [];
   el('done').hidden = false; el('doneHome').focus();
 }
 el('doneHome').addEventListener('click', () => { el('done').hidden = true; leaveGame(); });
-el('doneAgain').addEventListener('click', () => { el('done').hidden = true; const rec = G.rec; rec.fill = ''; rec.pct = 0; rec.hintsUsed = 0; saveLib(); openGame(rec); });
+el('doneAgain').addEventListener('click', () => { el('done').hidden = true; const rec = G.rec; rec.fill = ''; rec.pct = 0; rec.hintsUsed = 0; rec.timeMs = 0; saveLib(); openGame(rec); });
 
 function confetti(cols) {
   if (reduceMotion) return;
@@ -2037,6 +2122,95 @@ function confetti(cols) {
   })(t0);
 }
 
+/* ---------------- stats, trophies and rewards (kept on this device) ---------------- */
+const STATS_KEY = 'colourpots.stats';
+function loadJSON(k) { try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (e) { return {}; } }
+const stats = Object.assign({ shapes: 0, colours: 0, finished: 0, byLevel: {}, noHints: 0, patterns: 0, own: 0, pages: 0, timeMs: 0, fastest: {}, streak: 0, bestStreak: 0, lastDay: '', unlocked: {}, boardBg: 'dots' }, loadJSON(STATS_KEY));
+stats.byLevel = Object.assign({ easy: 0, medium: 0, tricky: 0 }, stats.byLevel);
+let statsT = 0;
+function saveStats(now) { clearTimeout(statsT); const w = () => { try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) {} }; if (now) w(); else statsT = setTimeout(w, 600); }
+const dayStr = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+function touchDay() {
+  const today = dayStr(new Date()); if (stats.lastDay === today) return;
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  stats.streak = stats.lastDay === dayStr(y) ? stats.streak + 1 : 1;
+  stats.bestStreak = Math.max(stats.bestStreak, stats.streak); stats.lastDay = today;
+}
+function currentStreak() { const y = new Date(); y.setDate(y.getDate() - 1); return stats.lastDay === dayStr(new Date()) || stats.lastDay === dayStr(y) ? stats.streak : 0; }
+function fmtTime(ms) { const s = Math.round((ms || 0) / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h ? h + 'h ' + m + 'm' : m ? m + 'm ' + (s % 60) + 's' : (s % 60) + 's'; }
+const TROPHIES = [
+  { id: 'first', name: 'First Splash', desc: 'Finish your first picture', v: s => s.finished, n: 1, reward: { bg: 'wood' } },
+  { id: 'five', name: 'Gallery of Five', desc: 'Finish 5 pictures', v: s => s.finished, n: 5, reward: { set: 'Autumn' } },
+  { id: 'fifteen', name: 'Art Collector', desc: 'Finish 15 pictures', v: s => s.finished, n: 15, reward: { bg: 'confetti' } },
+  { id: 'nohint1', name: 'No Peeking', desc: 'Finish a picture without using a hint', v: s => s.noHints, n: 1, reward: { set: 'Jewel' } },
+  { id: 'nohint5', name: 'Eagle Eyes', desc: 'Finish 5 pictures without hints', v: s => s.noHints, n: 5, reward: { bg: 'night' } },
+  { id: 'medium1', name: 'Steady Hand', desc: 'Finish a Medium picture', v: s => s.byLevel.medium, n: 1, reward: { bg: 'graph' } },
+  { id: 'tricky1', name: 'Detail Hunter', desc: 'Finish a Tricky picture', v: s => s.byLevel.tricky, n: 1, reward: { set: 'Neon' } },
+  { id: 'tricky5', name: 'Tricky Master', desc: 'Finish 5 Tricky pictures', v: s => s.byLevel.tricky, n: 5 },
+  { id: 'shapes500', name: 'Busy Brush', desc: 'Colour 500 shapes', v: s => s.shapes, n: 500, reward: { bg: 'grass' } },
+  { id: 'shapes2500', name: 'Paint Machine', desc: 'Colour 2,500 shapes', v: s => s.shapes, n: 2500, reward: { set: 'Candy' } },
+  { id: 'shapes10000', name: 'Shape Legend', desc: 'Colour 10,000 shapes', v: s => s.shapes, n: 10000 },
+  { id: 'colours100', name: 'Rainbow Run', desc: 'Complete 100 colours', v: s => s.colours, n: 100 },
+  { id: 'speedy', name: 'Speedy Painter', desc: 'Finish a Medium or Tricky picture in under 10 minutes', v: s => [s.fastest.medium, s.fastest.tricky].some(t => t && t < 600000) ? 1 : 0, n: 1 },
+  { id: 'own', name: 'Snap Happy', desc: 'Finish one of your own photos', v: s => s.own, n: 1 },
+  { id: 'patterns3', name: 'Pattern Lover', desc: 'Finish 3 pattern pictures', v: s => s.patterns, n: 3, reward: { bg: 'sunset' } },
+  { id: 'page', name: 'Page Turner', desc: 'Finish a colouring page', v: s => s.pages, n: 1 },
+  { id: 'streak3', name: 'On a Roll', desc: 'Colour on 3 days in a row', v: s => s.bestStreak, n: 3 },
+  { id: 'streak7', name: 'Week of Colour', desc: 'Colour on 7 days in a row', v: s => s.bestStreak, n: 7 }
+];
+const BOARD_BGS = [{ id: 'dots', name: 'Dotted table' }, { id: 'wood', name: 'Wooden desk' }, { id: 'graph', name: 'Graph paper' }, { id: 'grass', name: 'Garden lawn' }, { id: 'night', name: 'Starry night' }, { id: 'sunset', name: 'Sunset sky' }, { id: 'confetti', name: 'Party confetti' }];
+const rewardFrom = (kind, id) => TROPHIES.find(t => t.reward && t.reward[kind] === id);
+function hasReward(kind, id) { const t = rewardFrom(kind, id); return !t || !!stats.unlocked[t.id]; }
+function rewardText(t) { if (!t.reward) return ''; return t.reward.bg ? BOARD_BGS.find(b => b.id === t.reward.bg).name + ' background' : t.reward.set + ' colour set'; }
+function checkTrophies() {
+  const fresh = [];
+  for (const t of TROPHIES) if (!stats.unlocked[t.id] && t.v(stats) >= t.n) { stats.unlocked[t.id] = Date.now(); fresh.push(t); }
+  if (fresh.length) saveStats(true);
+  return fresh;
+}
+function trophyToast(list) {
+  if (!list.length) return;
+  const t = list[0];
+  toast('Trophy unlocked: ' + t.name + (t.reward ? '. New ' + rewardText(t) + '!' : '!') + (list.length > 1 ? ' (+' + (list.length - 1) + ' more)' : ''));
+  setTimeout(sfx.milestone, 200);
+}
+const medal = on => '<svg viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">'
+  + '<path d="M15 3h8l-4 15h-8z" style="fill:' + (on ? '#4A7BF7' : 'var(--line)') + '"/><path d="M33 3h-8l4 15h8z" style="fill:' + (on ? '#F2545B' : 'var(--line)') + '"/>'
+  + '<circle cx="24" cy="30" r="15" style="fill:' + (on ? '#FFC233' : 'var(--line)') + '"/><circle cx="24" cy="30" r="10" style="fill:none;stroke:' + (on ? '#D9930C' : 'var(--muted)') + ';stroke-width:2.5"/>'
+  + (on ? '<path d="M24 23.5l2 4.1 4.5.6-3.3 3.1.8 4.4-4-2.1-4 2.1.8-4.4-3.3-3.1 4.5-.6z" style="fill:#D9930C"/>' : '<path d="M20.5 29.5v-2.5a3.5 3.5 0 0 1 7 0v2.5M19 29.5h10v7H19z" style="fill:none;stroke:var(--muted);stroke-width:2;stroke-linejoin:round"/>')
+  + '</svg>';
+function paintTrophyBtn() { el('trophyNum').textContent = Object.keys(stats.unlocked).length + '/' + TROPHIES.length; }
+function applyBoardBg() { board.dataset.bg = hasReward('bg', stats.boardBg) ? stats.boardBg : 'dots'; }
+function renderTrophies() {
+  const best = l => stats.fastest[l] ? fmtTime(stats.fastest[l]) : 'None yet';
+  const rows = [['Pictures finished', stats.finished], ['Shapes coloured', stats.shapes.toLocaleString('en-GB')], ['Colours completed', stats.colours.toLocaleString('en-GB')], ['Time colouring', fmtTime(stats.timeMs)],
+    ['Finished with no hints', stats.noHints], ['Day streak', currentStreak() + (stats.bestStreak ? ' (best ' + stats.bestStreak + ')' : '')], ['Fastest Easy', best('easy')], ['Fastest Medium', best('medium')], ['Fastest Tricky', best('tricky')]];
+  el('statsGrid').innerHTML = rows.map(([k, v]) => '<div class="stat"><b>' + v + '</b><span>' + k + '</span></div>').join('');
+  const got = Object.keys(stats.unlocked).length;
+  el('trophyCount').textContent = got + ' of ' + TROPHIES.length + ' unlocked';
+  el('trophyGrid').innerHTML = TROPHIES.map(t => {
+    const on = !!stats.unlocked[t.id], cur = Math.min(t.v(stats), t.n);
+    const rw = t.reward ? '<span class="t-rw">' + (on ? 'Unlocked: ' : 'Unlocks: ') + rewardText(t) + '</span>' : '';
+    const prog = on ? '' : '<span class="t-bar"><i style="width:' + (cur / t.n * 100) + '%"></i></span><span class="t-num">' + cur.toLocaleString('en-GB') + ' / ' + t.n.toLocaleString('en-GB') + '</span>';
+    return '<div class="trophy' + (on ? '' : ' locked') + '">' + medal(on) + '<div class="t-body"><b>' + t.name + '</b><span class="t-desc">' + t.desc + '</span>' + prog + rw + '</div></div>';
+  }).join('');
+  const bg = el('bgGrid'); bg.innerHTML = '';
+  for (const b of BOARD_BGS) {
+    const ok = hasReward('bg', b.id), t = rewardFrom('bg', b.id), btn = document.createElement('button');
+    btn.className = 'bgopt' + (ok ? '' : ' locked'); btn.setAttribute('aria-pressed', stats.boardBg === b.id ? 'true' : 'false');
+    btn.innerHTML = '<span class="bgprev" data-bg="' + b.id + '"></span><b>' + b.name + '</b><small>' + (ok ? (stats.boardBg === b.id ? 'In use' : 'Tap to use') : 'Earn ' + t.name) + '</small>';
+    btn.addEventListener('click', () => { if (!ok) { toast('Earn the ' + t.name + ' trophy to unlock this. ' + t.desc + '.'); return; } stats.boardBg = b.id; saveStats(true); renderTrophies(); });
+    bg.appendChild(btn);
+  }
+  el('setGrid').innerHTML = Object.entries(THEMES).map(([name, th]) => {
+    const ok = hasReward('set', name), t = rewardFrom('set', name);
+    return '<div class="setrow' + (ok ? '' : ' locked') + '"><span class="sw">' + th.cols.slice(0, 6).map(c => '<i style="background:' + c + '"></i>').join('') + '</span><b>' + name + '</b><small>' + (ok ? 'Ready to use' : 'Earn ' + t.name) + '</small></div>';
+  }).join('');
+}
+el('trophyOpen').addEventListener('click', () => { renderTrophies(); show('trophies'); el('trophies').scrollTop = 0; });
+el('trophyBack').addEventListener('click', () => { show('home'); });
+paintTrophyBtn();
+
 /* open / leave */
 function openGame(rec) {
   G = buildGame(rec); anims = []; viewAnim = null; pulse = null; pts.clear(); gest = null;
@@ -2044,7 +2218,7 @@ function openGame(rec) {
   G.sel = first < 0 ? 0 : first;
   G.finished = G.filledCount === G.playable;
   G.mile = Math.floor(G.filledCount / G.playable * 100);
-  el('gName').textContent = rec.name;
+  el('gName').textContent = rec.name; G.lastTick = Date.now(); applyBoardBg();
   show('play'); el('done').hidden = true;
   view.touched = false;
   refreshPaint(); rebuildPath(); renderPalette(); updateHintBtn();
