@@ -235,6 +235,13 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
 .mt-txt small{font-size:12px;color:var(--muted)}
 .mm-vol{display:flex;align-items:center;gap:10px;padding:10px;font-size:14px;font-weight:600;color:var(--muted)}
 .mm-vol input{flex:1;accent-color:var(--accent)}
+.peek{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:12px;padding:4px;border:0;border-radius:12px;background:var(--surface);box-shadow:0 0 0 1px var(--line),0 4px 14px var(--shade);cursor:zoom-in;line-height:0;z-index:2}
+.peek canvas{display:block;border-radius:8px;image-rendering:pixelated;max-width:84px;max-height:84px}
+.peek:active{transform:scale(.95)}
+.peek-big{cursor:zoom-out}
+.peek-card{background:var(--surface);border-radius:22px;padding:12px;max-width:min(560px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;animation:rise .3s ease-out}
+.peek-card canvas{display:block;max-width:100%;max-height:70vh;margin:0 auto;border-radius:12px;image-rendering:pixelated}
+.peek-card p{margin:10px 4px 2px;color:var(--muted);font-size:14px}
 .edit-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
 .slide{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--muted);flex:1 1 200px;min-width:0}
 .slide input{flex:1;min-width:0;accent-color:var(--accent)}
@@ -472,6 +479,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
       <canvas id="cv"></canvas>
       <div class="bubble" id="bubble" hidden></div>
       <div class="mile" id="mile" hidden></div>
+      <button class="peek" id="peekBtn" aria-label="Show the finished picture"><canvas id="peekCv"></canvas></button>
       <div class="zoomers">
         <button class="icon-btn" id="zIn" aria-label="Zoom in"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
         <button class="icon-btn" id="zOut" aria-label="Zoom out"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
@@ -492,6 +500,12 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
       <button class="btn" id="doneAgain">Colour it again</button>
       <button class="btn primary" id="doneHome">My pictures</button>
     </div>
+  </div>
+</div>
+<div id="peekBig" class="overlay peek-big" hidden>
+  <div class="peek-card" role="dialog" aria-label="Finished picture">
+    <canvas id="peekBigCv"></canvas>
+    <p>How it will look when it's finished. Tap anywhere to go back.</p>
   </div>
 </div>
 <canvas id="confetti"></canvas>
@@ -2339,14 +2353,36 @@ function openGame(rec) {
   G.sel = first < 0 ? 0 : first;
   G.finished = G.filledCount === G.playable;
   G.mile = Math.floor(G.filledCount / G.playable * 100);
-  el('gName').textContent = rec.name; G.lastTick = Date.now(); applyBoardBg();
+  el('gName').textContent = rec.name; G.lastTick = Date.now(); applyBoardBg(); drawPeek(); el('peekBig').hidden = true;
   show('play'); el('done').hidden = true;
   view.touched = false;
   refreshPaint(); rebuildPath(); renderPalette(); updateHintBtn();
   resize();
   if (G.finished) setTimeout(showDone, 200);
 }
-function leaveGame() { persist(true); G = null; anims = []; show('home'); renderHome(); }
+// The finished picture: every shape in its own paint colour, with the fixed line colour kept
+function finishedPicture(canvas, scale) {
+  const { W, H, col, pal } = G, u = scale;
+  canvas.width = W * u; canvas.height = H * u;
+  const x = canvas.getContext('2d'), img = x.createImageData(W * u, H * u), d = img.data, CW = W * u;
+  for (let y = 0; y < H; y++) for (let xx = 0; xx < W; xx++) {
+    const c = pal[col[y * W + xx]];
+    for (let sy = 0; sy < u; sy++) for (let sx = 0; sx < u; sx++) { const i = ((y * u + sy) * CW + xx * u + sx) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255; }
+  }
+  x.putImageData(img, 0, 0);
+}
+function drawPeek() {
+  const c = el('peekCv'); finishedPicture(c, 1);
+  const k = 84 / Math.max(G.W, G.H); c.style.width = Math.round(G.W * k) + 'px'; c.style.height = Math.round(G.H * k) + 'px';
+}
+el('peekBtn').addEventListener('click', () => {
+  if (!G) return;
+  finishedPicture(el('peekBigCv'), Math.max(1, Math.ceil(560 / Math.max(G.W, G.H))));
+  el('peekBig').hidden = false; sfx.pick();
+});
+el('peekBig').addEventListener('click', () => { el('peekBig').hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') el('peekBig').hidden = true; });
+function leaveGame() { el('peekBig').hidden = true; persist(true); G = null; anims = []; show('home'); renderHome(); }
 el('playBack').addEventListener('click', leaveGame);
 el('hintBtn').addEventListener('click', hint);
 el('zIn').addEventListener('click', () => zoomAt(1.6, cw / 2, ch / 2));
