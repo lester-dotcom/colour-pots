@@ -242,6 +242,15 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
 .peek-card{background:var(--surface);border-radius:22px;padding:12px;max-width:min(560px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;animation:rise .3s ease-out}
 .peek-card canvas{display:block;max-width:100%;max-height:70vh;margin:0 auto;border-radius:12px;image-rendering:pixelated}
 .peek-card p{margin:10px 4px 2px;color:var(--muted);font-size:14px}
+.share-btn{margin-bottom:10px}
+#shareView{z-index:25}
+.share-card{background:var(--surface);border-radius:24px;padding:18px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:rise .3s ease-out;max-height:100%;overflow-y:auto}
+.share-card h2{font-size:26px;margin-bottom:4px}
+.share-card p{margin:0 0 12px;color:var(--muted);font-size:14px}
+.share-card img{display:block;width:100%;height:auto;border-radius:14px;margin-bottom:14px;-webkit-touch-callout:default;user-select:auto}
+.share-card .row{display:flex;gap:10px;flex-wrap:wrap}
+.share-card .row .btn{flex:1 1 120px;text-decoration:none}
+@media (pointer: coarse){#shareDl{display:none}}
 .edit-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
 .slide{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--muted);flex:1 1 200px;min-width:0}
 .slide input{flex:1;min-width:0;accent-color:var(--accent)}
@@ -496,9 +505,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
     <h2 id="doneTitle">You did it!</h2>
     <p id="doneMsg">Every shape is painted.</p>
     <div class="done-trophies" id="doneTrophies"></div>
+    <button class="btn primary big share-btn" id="doneShare"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Share my picture</button>
     <div class="row">
       <button class="btn" id="doneAgain">Colour it again</button>
-      <button class="btn primary" id="doneHome">My pictures</button>
+      <button class="btn" id="doneHome">My pictures</button>
     </div>
   </div>
 </div>
@@ -506,6 +516,17 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
   <div class="peek-card" role="dialog" aria-label="Finished picture">
     <canvas id="peekBigCv"></canvas>
     <p>How it will look when it's finished. Tap anywhere to go back.</p>
+  </div>
+</div>
+<div id="shareView" class="overlay" hidden>
+  <div class="share-card" role="dialog" aria-labelledby="shareTitle">
+    <h2 id="shareTitle">Save or share</h2>
+    <p id="shareHow">Press and hold the picture, then choose Save to Photos or Share.</p>
+    <img id="shareImg" alt="Your finished picture">
+    <div class="row">
+      <a class="btn" id="shareDl" download="colour-pots.png">Download</a>
+      <button class="btn primary" id="shareClose">Done</button>
+    </div>
   </div>
 </div>
 <canvas id="confetti"></canvas>
@@ -2240,6 +2261,59 @@ function showDone() {
   G.news = [];
   el('done').hidden = false; el('doneHome').focus();
 }
+const SHARE_URL = 'https://lester-dotcom.github.io/colour-pots/';
+// A share card: the finished picture on a framed card with its name, time and the game's link
+async function makeShareCard() {
+  try { if (document.fonts) await document.fonts.ready; } catch (e) {}
+  const pic = mk(1, 1), u = Math.max(1, Math.ceil(900 / Math.max(G.W, G.H)));
+  finishedPicture(pic, u);
+  const PW = 1080, pad = 70, maxW = PW - pad * 2, maxH = 1000, k = Math.min(maxW / pic.width, maxH / pic.height);
+  const iw = Math.round(pic.width * k), ih = Math.round(pic.height * k), H = pad + 120 + ih + 260;
+  const c = mk(PW, H), x = c.getContext('2d');
+  x.fillStyle = '#1B1F3B'; x.fillRect(0, 0, PW, H);
+  const dots = ['#F2545B', '#FFC233', '#3FB37F', '#4A7BF7'];
+  dots.forEach((d, i) => { x.fillStyle = d; x.beginPath(); x.arc(pad + 22 + i * 30, pad + 40, 22, 0, Math.PI * 2); x.fill(); });
+  x.fillStyle = '#FFFFFF'; x.font = '800 48px Grandstander, system-ui, sans-serif'; x.textBaseline = 'middle';
+  x.fillText('Colour Pots', pad + 150, pad + 42);
+  const py = pad + 110;
+  x.fillStyle = '#FFFFFF'; x.beginPath(); x.roundRect ? x.roundRect(pad - 16, py - 16, iw + 32, ih + 32, 28) : x.rect(pad - 16, py - 16, iw + 32, ih + 32); x.fill();
+  x.imageSmoothingEnabled = false; x.drawImage(pic, pad + (maxW - iw) / 2, py, iw, ih);
+  const ty = py + ih + 90;
+  x.fillStyle = '#FFFFFF'; x.font = '800 64px Grandstander, system-ui, sans-serif'; x.textBaseline = 'alphabetic';
+  let name = G.rec.name; while (x.measureText(name).width > maxW && name.length > 4) name = name.slice(0, -2) + '…';
+  x.fillText(name, pad, ty);
+  const lvl = (LEVELS[G.rec.level] || LEVELS.medium).label;
+  const bits = [lvl, G.playable + ' shapes'];
+  if (G.rec.timeMs) bits.push(fmtTime(G.rec.timeMs));
+  if (!(G.rec.hintsUsed > 0)) bits.push('no hints');
+  x.fillStyle = '#FFC233'; x.font = '600 36px Lexend, system-ui, sans-serif'; x.fillText(bits.join('  ·  '), pad, ty + 62);
+  x.fillStyle = '#A1A7C7'; x.font = '500 30px Lexend, system-ui, sans-serif'; x.fillText('Colour your own at ' + SHARE_URL.replace('https://', ''), pad, ty + 122);
+  return c;
+}
+const canvasBlob = c => new Promise(res => { try { c.toBlob(b => res(b), 'image/png'); } catch (e) { res(null); } });
+el('doneShare').addEventListener('click', async () => {
+  if (!G) return;
+  const btn = el('doneShare'); btn.disabled = true;
+  try {
+    const card = await makeShareCard(), blob = await canvasBlob(card);
+    const fname = (G.rec.name || 'picture').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() + '-colour-pots.png';
+    const text = 'I coloured ' + G.rec.name + ' in Colour Pots! Have a go: ' + SHARE_URL;
+    if (blob && navigator.canShare) {
+      const file = new File([blob], fname, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], text }); return; }
+        catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+    }
+    // no share menu here: show the picture to press and hold, plus a download link
+    const url = blob ? URL.createObjectURL(blob) : card.toDataURL('image/png');
+    el('shareImg').src = url; el('shareDl').href = url; el('shareDl').download = fname;
+    el('shareView').hidden = false;
+  } catch (e) { toast('Sorry, the picture could not be made. Try again.'); }
+  finally { btn.disabled = false; }
+});
+el('shareClose').addEventListener('click', () => { el('shareView').hidden = true; });
+el('shareView').addEventListener('click', e => { if (e.target === el('shareView')) el('shareView').hidden = true; });
 el('doneHome').addEventListener('click', () => { el('done').hidden = true; leaveGame(); });
 el('doneAgain').addEventListener('click', () => { el('done').hidden = true; const rec = G.rec; rec.fill = ''; rec.pct = 0; rec.hintsUsed = 0; rec.timeMs = 0; saveLib(); openGame(rec); });
 
