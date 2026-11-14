@@ -2308,6 +2308,7 @@ el('doneShare').addEventListener('click', async () => {
     // no share menu here: show the picture to press and hold, plus a download link
     const url = blob ? URL.createObjectURL(blob) : card.toDataURL('image/png');
     el('shareImg').src = url; el('shareDl').href = url; el('shareDl').download = fname;
+    el('shareDl').hidden = !(/github\.io$/.test(location.hostname) || location.protocol === 'file:');
     el('shareView').hidden = false;
   } catch (e) { toast('Sorry, the picture could not be made. Try again.'); }
   finally { btn.disabled = false; }
