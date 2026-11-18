@@ -80,6 +80,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
 .badge{position:absolute;left:16px;top:16px;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px}
 .del{position:absolute;top:14px;right:14px;height:30px;min-width:30px;border-radius:999px;border:0;background:rgba(13,14,25,.8);color:var(--ink);cursor:pointer;font:600 13px var(--f-body);display:grid;place-items:center;padding:0 8px}
 .del.confirm{background:var(--pop);color:#fff}
+.chips{display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:999px;flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:none;box-shadow:0 0 0 1px var(--line)}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:0;background:transparent;color:var(--muted);font:600 14px var(--f-body);padding:8px 14px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--surface2);color:var(--ink)}
 .empty{grid-column:1/-1;color:var(--muted);background:var(--surface);border-radius:18px;padding:18px;box-shadow:0 0 0 1px var(--line)}
 .foot{color:var(--muted);font-size:14px;margin:0 0 44px}
 .foot a{color:var(--ink)}
@@ -150,7 +154,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
       </div>
       <div class="shelf-head"><h2>My scratches</h2><span id="myCount"></span></div>
       <div id="mine" class="gallery"></div>
-      <div class="shelf-head"><h2>Pictures to scratch</h2><span>Each one hides a different colour</span></div>
+      <div class="shelf-head"><h2>Pictures to scratch</h2><div class="chips" role="group" aria-label="Picture type" id="catChips"></div></div>
       <div id="designs" class="gallery"></div>
       <p class="foot">Like colouring by numbers too? Try <a href="https://lester-dotcom.github.io/colour-pots/" target="_blank" rel="noopener">Colour Pots</a>.</p>
     </div>
@@ -304,7 +308,7 @@ function pen(x) {
 }
 const P = Math.PI;
 const DESIGNS = [
-  { id: 'owl', name: 'Night Owl', foil: 'holo', draw(h) {
+  { id: 'owl', cat: 'Animals', name: 'Night Owl', foil: 'holo', draw(h) {
     h.circle(790, 190, 92); h.circle(760, 165, 16); h.circle(818, 222, 20); h.circle(808, 150, 8);
     [[150, 150, 30], [310, 90, 18], [620, 110, 22], [920, 400, 18], [100, 390, 20]].forEach(([a, b, r]) => h.star(a, b, r, r * 0.45));
     [[240, 260], [520, 200], [880, 560]].forEach(([a, b]) => h.twinkle(a, b, 12));
@@ -321,7 +325,7 @@ const DESIGNS = [
     h.mirror(() => { h.smooth([338, 480, 300, 580, 318, 700, 372, 770]); h.curve(322, 560, 350, 610, 336, 670); h.curve(330, 640, 360, 690, 350, 740); });
     [440, 560].forEach(fx => { h.line(fx, 778, fx - 18, 806); h.line(fx, 778, fx, 810); h.line(fx, 778, fx + 18, 806); });
   } },
-  { id: 'rocket', name: 'Space Trip', foil: 'neon', draw(h, x) {
+  { id: 'rocket', cat: 'Adventure', name: 'Space Trip', foil: 'neon', draw(h, x) {
     h.circle(800, 190, 100); h.ell(800, 190, 178, 42, -0.35);
     h.curve(712, 154, 800, 176, 886, 148); h.curve(704, 220, 800, 240, 892, 212);
     h.circle(170, 800, 72); h.circle(150, 778, 15); h.circle(196, 826, 11); h.circle(190, 768, 7);
@@ -340,7 +344,7 @@ const DESIGNS = [
     h.line(-26, 214, -12, 258, 0, 236, 12, 258, 26, 214);
     x.restore();
   } },
-  { id: 'dino', name: 'Dino Stomp', foil: 'sunset', draw(h) {
+  { id: 'dino', cat: 'Adventure', name: 'Dino Stomp', foil: 'sunset', draw(h) {
     h.circle(470, 150, 60); for (let i = 0; i < 10; i++) { const a = i * P / 5; h.line(470 + Math.cos(a) * 80, 150 + Math.sin(a) * 80, 470 + Math.cos(a) * 106, 150 + Math.sin(a) * 106); }
     h.line(820, 812, 880, 520, 945, 520, 1000, 690); h.line(880, 520, 897, 552, 912, 528, 928, 556, 945, 520);
     h.circle(915, 465, 28); h.circle(950, 412, 36); h.circle(905, 360, 28);
@@ -356,7 +360,7 @@ const DESIGNS = [
     h.line(370, 735, 370, 815, 425, 815, 425, 748); h.line(540, 748, 540, 815, 595, 815, 595, 735);
     [[420, 640, 22], [500, 600, 16], [560, 680, 18], [380, 690, 12]].forEach(([a, b, r]) => h.circle(a, b, r));
   } },
-  { id: 'butterfly', name: 'Butterfly Garden', foil: 'rainbow', draw(h) {
+  { id: 'butterfly', cat: 'Animals', name: 'Butterfly Garden', foil: 'rainbow', draw(h) {
     h.ell(500, 470, 24, 150); h.circle(500, 296, 32);
     h.mirror(() => {
       h.curve(488, 270, 452, 180, 398, 168); h.circle(388, 166, 12);
@@ -369,7 +373,7 @@ const DESIGNS = [
     [[150, 870, 64], [500, 905, 58], [850, 860, 64]].forEach(([cx, cy, r]) => { h.flower(cx, cy, r); h.line(cx, cy + r, cx, 1000); h.petal(cx, cy + r + 50, -0.5, 0, 60, 18); h.petal(cx, cy + r + 50, -2.6, 0, 60, 18); });
     [[100, 120], [880, 140], [120, 640], [900, 600]].forEach(([a, b]) => h.twinkle(a, b, 14));
   } },
-  { id: 'sea', name: 'Under the Sea', foil: 'ocean', draw(h, x) {
+  { id: 'sea', cat: 'Animals', name: 'Under the Sea', foil: 'ocean', draw(h, x) {
     h.ell(520, 470, 200, 118);
     h.poly(330, 470, 196, 372, 226, 470, 196, 568);
     h.curve(450, 360, 520, 260, 620, 368); h.curve(470, 582, 520, 660, 590, 580);
@@ -386,7 +390,7 @@ const DESIGNS = [
     h.line(380, 960, 430, 880, 480, 960); for (let i = 0; i < 4; i++) h.line(430, 880, 395 + i * 23, 958);
     [[200, 200, 1], [820, 640, -1]].forEach(([cx, cy, d]) => { h.ell(cx, cy, 60, 34); h.poly(cx - d * 58, cy, cx - d * 100, cy - 30, cx - d * 100, cy + 30); h.circle(cx + d * 30, cy - 6, 6); });
   } },
-  { id: 'mandala', name: 'Magic Mandala', foil: 'gold', draw(h) {
+  { id: 'mandala', cat: 'Patterns', name: 'Magic Mandala', foil: 'gold', draw(h) {
     const c = 500;
     [56, 190, 300, 420, 470].forEach(r => h.circle(c, c, r));
     for (let i = 0; i < 12; i++) h.petal(c, c, i * P / 6, 56, 188, 42);
@@ -398,7 +402,7 @@ const DESIGNS = [
     h.flower(c, c, 46); h.circle(c, c, 10);
     [[0, 0], [1000, 0], [0, 1000], [1000, 1000]].forEach(([a, b]) => { h.circle(a, b, 90); h.circle(a, b, 60); });
   } },
-  { id: 'goal', name: 'Golden Goal', foil: 'rainbow', draw(h, x) {
+  { id: 'goal', cat: 'Adventure', name: 'Golden Goal', foil: 'rainbow', draw(h, x) {
     const bx = 600, by = 540, br = 130;
     x.save(); x.beginPath(); x.rect(0, 0, 1000, 1000); x.arc(bx, by, br + 10, 0, P * 2, true); x.clip('evenodd');
     h.line(120, 760, 120, 300, 880, 300, 880, 760);
@@ -416,7 +420,7 @@ const DESIGNS = [
     x.save(); x.font = '800 130px Grandstander, "Arial Black", sans-serif'; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.strokeText('GOAL!', 500, 245); x.restore();
     h.line(330, 930, 670, 930); h.line(380, 960, 620, 960);
   } },
-  { id: 'castle', name: 'Firework Castle', foil: 'neon', draw(h, x) {
+  { id: 'castle', cat: 'Adventure', name: 'Firework Castle', foil: 'neon', draw(h, x) {
     h.smooth([0, 900, 250, 870, 500, 890, 750, 865, 1000, 885]);
     const bat = (x0, x1, y) => { const p = [x0, y + 30]; for (let px = x0; px < x1; px += 40) p.push(px, y, px + 20, y, px + 20, y + 30, Math.min(px + 40, x1), y + 30); h.line(...p); };
     h.line(300, 590, 300, 880, 700, 880, 700, 590); bat(300, 700, 560);
@@ -430,6 +434,188 @@ const DESIGNS = [
     win(270, 520); win(270, 660); win(730, 520); win(730, 660); win(500, 450); win(380, 680); win(620, 680);
     [[360, 640, 400, 640], [620, 760, 660, 760], [330, 800, 370, 800]].forEach(([a, b, c, d]) => h.line(a, b, c, d));
     [[160, 160, 80], [500, 120, 70], [850, 170, 86]].forEach(([cx, cy, r]) => { for (let i = 0; i < 14; i++) { const a = i * P / 7; h.line(cx + Math.cos(a) * r * 0.22, cy + Math.sin(a) * r * 0.22, cx + Math.cos(a) * r, cy + Math.sin(a) * r); h.circle(cx + Math.cos(a) * (r + 16), cy + Math.sin(a) * (r + 16), 4); } });
+  } },
+  { id: 'london', name: 'London Eye', cat: 'Cities', foil: 'sunset', draw(h) {
+    const cloud = (cx, cy, s) => { const p = []; for (let i = 0; i < 14; i++) { const a = i / 14 * P * 2, k = i % 2 ? 0.78 : 1; p.push(cx + Math.cos(a) * 80 * s * k, cy + Math.sin(a) * 34 * s * k); } h.smooth(p, true); };
+    cloud(150, 130, 1); cloud(900, 120, 0.8);
+    h.curve(600, 120, 615, 104, 630, 120); h.curve(630, 120, 645, 104, 660, 120); h.curve(680, 160, 690, 150, 700, 160); h.curve(700, 160, 710, 150, 720, 160);
+    const cx = 380, cy = 430, R = 270;
+    h.circle(cx, cy, R); h.circle(cx, cy, R - 18);
+    for (let i = 0; i < 16; i++) { const a = i * P / 8; h.line(cx + Math.cos(a) * 30, cy + Math.sin(a) * 30, cx + Math.cos(a) * (R - 18), cy + Math.sin(a) * (R - 18)); }
+    h.circle(cx, cy, 30); h.circle(cx, cy, 12);
+    for (let i = 0; i < 32; i++) { const a = i * P / 16; h.ell(cx + Math.cos(a) * (R + 16), cy + Math.sin(a) * (R + 16), 13, 9, a); }
+    h.line(cx, cy, 250, 820); h.line(cx, cy, 330, 820); h.line(302, 660, 351, 660); h.line(276, 740, 340, 740);
+    h.line(0, 820, 1000, 820);
+    [870, 920, 965].forEach((y, k) => { const p = []; for (let px = 0; px <= 1000; px += 125) p.push(px, y + ((px / 125 + k) % 2 ? -12 : 0)); h.smooth(p); });
+    h.rect(765, 390, 70, 430); [470, 550, 630, 710].forEach(y => { h.line(765, y, 835, y); h.rect(790, y + 16, 20, 44); });
+    h.rect(752, 300, 96, 90); h.circle(800, 345, 34); h.circle(800, 345, 4); h.line(800, 345, 800, 320); h.line(800, 345, 820, 356);
+    h.rect(768, 250, 64, 50); h.line(784, 262, 784, 292); h.line(800, 262, 800, 292); h.line(816, 262, 816, 292);
+    h.poly(756, 250, 800, 150, 844, 250); h.line(800, 150, 800, 105); h.circle(800, 98, 7);
+    const z = [835, 700]; for (let px = 850; px <= 985; px += 30) z.push(px, 700, px + 8, 672, px + 16, 700); z.push(1000, 700); h.line(...z);
+    for (let px = 850; px < 990; px += 30) h.rect(px, 735, 14, 30);
+  } },
+  { id: 'paris', name: 'Eiffel Tower', cat: 'Cities', foil: 'holo', draw(h) {
+    const LX = [[880, 300], [700, 352], [446, 440], [250, 478], [120, 492]];
+    const lx = y => { for (let i = 0; i < LX.length - 1; i++) { const [y0, x0] = LX[i], [y1, x1] = LX[i + 1]; if (y <= y0 && y >= y1) return x0 + (x1 - x0) * (y0 - y) / (y0 - y1); } return 492; };
+    const rx = y => 1000 - lx(y);
+    const L = [], Rr = []; for (let y = 880; y >= 120; y -= 20) { L.push(lx(y), y); Rr.push(rx(y), y); } h.smooth(L); h.smooth(Rr);
+    h.line(370, 880, 392, 724); h.line(630, 880, 608, 724); h.curve(370, 880, 500, 700, 630, 880);
+    const zig = (side) => { const p = []; let k = 0; for (let y = 880; y >= 724; y -= 26, k++) { const o = lx(y), i = 370 + (392 - 370) * (880 - y) / 156; const xo = k % 2 ? i : o; p.push(side ? 1000 - xo : xo, y); } h.line(...p); };
+    zig(0); zig(1);
+    h.rect(lx(712) - 16, 700, rx(712) - lx(712) + 32, 24); for (let px = lx(712) - 10; px < rx(712) + 16; px += 22) h.line(px, 700, px, 724);
+    for (let y = 700; y > 470; y -= 46) { h.line(lx(y), y, rx(y - 46), y - 46); h.line(rx(y), y, lx(y - 46), y - 46); h.line(lx(y - 46), y - 46, rx(y - 46), y - 46); }
+    h.rect(lx(446) - 12, 426, rx(446) - lx(446) + 24, 20);
+    for (let y = 426; y > 200; y -= 56) { h.line(lx(y), y, rx(y - 56), y - 56); h.line(rx(y), y, lx(y - 56), y - 56); }
+    h.rect(lx(190) - 8, 170, rx(190) - lx(190) + 16, 20); h.line(500, 170, 500, 70); h.circle(500, 63, 6);
+    h.line(0, 880, 1000, 880); [925, 965].forEach(y => h.smooth([0, y, 200, y - 10, 400, y + 6, 600, y - 10, 800, y + 6, 1000, y - 6]));
+    [[150, 820, 54], [215, 800, 42], [850, 820, 54], [785, 800, 42]].forEach(([a, b, r]) => { h.circle(a, b, r); h.line(a, b + r, a, 880); });
+    h.smooth([180, 170, 250, 220, 240, 300, 196, 350, 164, 350, 120, 300, 110, 220], true);
+    h.curve(180, 175, 150, 260, 172, 350); h.curve(180, 175, 210, 260, 188, 350);
+    h.rect(162, 385, 36, 26); h.line(168, 350, 166, 385); h.line(192, 350, 194, 385);
+    h.circle(860, 160, 54); [[700, 120], [740, 100]].forEach(([a, b]) => { h.curve(a, b, a + 12, b - 14, a + 24, b); h.curve(a + 24, b, a + 36, b - 14, a + 48, b); });
+  } },
+  { id: 'newyork', name: 'New York', cat: 'Cities', foil: 'gold', draw(h) {
+    h.circle(860, 140, 56); h.circle(842, 124, 10); h.circle(876, 160, 8);
+    [[120, 120, 20], [330, 90, 14], [620, 140, 16], [960, 300, 14]].forEach(([a, b, r]) => h.star(a, b, r, r * 0.45));
+    const bld = (x0, top, w, cols) => { h.line(x0, 840, x0, top, x0 + w, top, x0 + w, 840); const cw = (w - 16) / cols; for (let wy = top + 22; wy < 812; wy += 34) for (let c = 0; c < cols; c++) h.rect(x0 + 8 + c * cw + 3, wy, cw - 6, 14); };
+    bld(20, 520, 90, 3); bld(120, 610, 70, 2); bld(198, 470, 90, 3); bld(300, 560, 96, 3);
+    h.line(410, 840, 410, 390, 425, 390, 425, 330, 445, 330, 445, 280, 462, 280, 462, 240, 478, 240, 486, 120, 494, 240, 510, 240, 510, 280, 527, 280, 527, 330, 547, 330, 547, 390, 562, 390, 562, 840);
+    for (let xx = 432; xx < 548; xx += 23) h.line(xx, 412, xx, 820);
+    h.line(608, 840, 608, 400, 692, 400, 692, 840);
+    [[40, 0], [31, 30], [22, 60], [13, 90]].forEach(([r, d]) => { h.arc(650, 400 - d, r, P, 0); for (let k = 1; k < 4; k++) { const a = P + k * P / 4; h.poly(650 + Math.cos(a) * (r - 4), 400 - d + Math.sin(a) * (r - 4), 650 + Math.cos(a) * (r - 13), 400 - d + Math.sin(a) * (r - 13) + 4, 650 + Math.cos(a) * (r - 13) + 4, 400 - d + Math.sin(a) * (r - 13)); } });
+    h.line(650, 297, 650, 220); for (let wy = 424; wy < 812; wy += 34) { h.rect(620, wy, 24, 14); h.rect(656, wy, 24, 14); }
+    bld(708, 510, 80, 3); bld(800, 590, 76, 2); bld(888, 470, 100, 3);
+    h.line(0, 840, 1000, 840);
+    const r = mulberry32(5); for (let y = 868; y < 990; y += 26) for (let px = 20; px < 980; px += 90 + r() * 60) { const l = 30 + r() * 50; h.line(px, y, px + l, y); }
+  } },
+  { id: 'sydney', name: 'Sydney Harbour', cat: 'Cities', foil: 'ocean', draw(h, x) {
+    h.circle(860, 140, 56); for (let i = 0; i < 10; i++) { const a = i * P / 5; h.line(860 + Math.cos(a) * 74, 140 + Math.sin(a) * 74, 860 + Math.cos(a) * 100, 140 + Math.sin(a) * 100); }
+    h.line(0, 560, 520, 560); h.line(0, 582, 520, 582);
+    h.curve(40, 560, 270, 160, 500, 560); h.curve(72, 560, 270, 230, 468, 560);
+    for (let bx = 90; bx <= 450; bx += 30) { const k = (bx - 270) / 198, y = 560 - 165 * (1 - k * k); h.line(bx, y, bx, 560); }
+    h.rect(0, 500, 50, 120); h.rect(490, 500, 60, 120); h.line(0, 530, 50, 530); h.line(490, 530, 550, 530);
+    h.rect(520, 760, 470, 46); h.line(520, 782, 990, 782);
+    const shell = (x0, w, hh) => { const tx = x0 + w * 0.3, ty = 760 - hh; x.beginPath(); x.moveTo(x0, 760); x.quadraticCurveTo(x0 + w * 0.02, 760 - hh * 0.6, tx, ty); x.quadraticCurveTo(x0 + w * 0.88, 760 - hh * 0.72, x0 + w, 760); x.stroke(); for (let k = 1; k <= 3; k++) h.curve(tx, ty, x0 + w * (0.25 + k * 0.17), 760 - hh * 0.35, x0 + w * (0.2 + k * 0.2), 760); };
+    shell(540, 160, 230); shell(650, 190, 290); shell(790, 150, 230); shell(900, 90, 160);
+    [680, 730].forEach(y => h.smooth([0, y, 100, y - 8, 200, y + 6, 300, y - 8, 400, y + 4, 500, y]));
+    [850, 900, 950].forEach(y => h.smooth([0, y, 200, y - 10, 400, y + 6, 600, y - 10, 800, y + 6, 1000, y - 6]));
+    h.line(180, 760, 180, 650); h.poly(184, 656, 184, 750, 250, 750); h.poly(176, 670, 176, 750, 130, 750);
+    h.line(140, 770, 260, 770, 240, 800, 160, 800, 140, 770);
+    [[620, 120], [660, 150], [560, 160]].forEach(([a, b]) => { h.curve(a, b, a + 10, b - 12, a + 20, b); h.curve(a + 20, b, a + 30, b - 12, a + 40, b); });
+  } },
+  { id: 'lion', name: 'Lion', cat: 'Animals', foil: 'gold', draw(h) {
+    for (let i = 0; i < 18; i++) h.petal(500, 510, i * P / 9, 168, 360, 62);
+    for (let i = 0; i < 18; i++) h.petal(500, 510, i * P / 9 + P / 18, 160, 280, 38);
+    h.ell(500, 520, 170, 182);
+    h.ell(440, 470, 28, 19); h.ell(560, 470, 28, 19); h.circle(440, 470, 10); h.circle(560, 470, 10);
+    h.curve(405, 432, 440, 414, 476, 432); h.curve(524, 432, 560, 414, 595, 432);
+    h.line(482, 500, 470, 562); h.line(518, 500, 530, 562);
+    h.circle(462, 614, 54); h.circle(538, 614, 54);
+    h.poly(462, 560, 538, 560, 500, 600);
+    h.line(500, 600, 500, 628); h.arc(500, 640, 34, 0.15 * P, 0.85 * P);
+    h.mirror(() => { [[440, 604], [426, 628], [452, 640]].forEach(([a, b]) => h.circle(a, b, 4)); h.line(420, 616, 318, 594); h.line(420, 634, 312, 642); h.line(424, 650, 330, 690); });
+  } },
+  { id: 'elephant', name: 'Elephant', cat: 'Animals', foil: 'rainbow', draw(h) {
+    h.circle(850, 150, 58); for (let i = 0; i < 10; i++) { const a = i * P / 5; h.line(850 + Math.cos(a) * 76, 150 + Math.sin(a) * 76, 850 + Math.cos(a) * 102, 150 + Math.sin(a) * 102); }
+    h.smooth([0, 848, 250, 836, 500, 852, 750, 836, 1000, 848]);
+    h.ell(570, 560, 230, 165);
+    [[380, 450], [480, 550], [620, 690], [710, 780]].forEach(([a, b]) => { const m = (a + b) / 2, k = (m - 570) / 230, top = 560 + 165 * Math.sqrt(Math.max(0, 1 - k * k)) - 14; h.line(a, top, a, 830, b, 830, b, top); for (let t = 0; t < 3; t++) h.arc(a + 12 + t * 23, 830, 9, P, 0); });
+    h.circle(330, 450, 118);
+    h.smooth([372, 352, 470, 340, 506, 450, 476, 566, 404, 586, 364, 500], true);
+    h.bez(236, 500, 196, 600, 228, 700, 170, 770); h.bez(288, 548, 258, 622, 282, 722, 202, 792); h.curve(170, 770, 176, 802, 202, 792);
+    [[228, 600, 270, 610], [226, 650, 274, 664], [214, 700, 262, 716]].forEach(([a, b, c, d]) => h.curve(a, b, (a + c) / 2, b + 10, c, d));
+    h.curve(286, 540, 250, 600, 210, 588); h.circle(300, 426, 10); h.curve(282, 400, 300, 390, 320, 402);
+    h.curve(796, 530, 838, 590, 822, 660); h.line(822, 660, 810, 690); h.line(822, 660, 828, 692); h.line(822, 660, 842, 686);
+    [[100, 846], [930, 846], [520, 852]].forEach(([a, b]) => h.line(a - 16, b, a - 8, b - 26, a, b, a + 8, b - 30, a + 16, b));
+    h.curve(560, 380, 572, 366, 584, 380); h.curve(584, 380, 596, 366, 608, 380);
+  } },
+  { id: 'cat', name: 'Cosy Cat', cat: 'Animals', foil: 'holo', draw(h) {
+    h.rect(620, 90, 300, 300); h.line(770, 90, 770, 390); h.line(620, 240, 920, 240);
+    h.circle(700, 160, 34); h.star(850, 160, 16, 7); h.star(860, 320, 13, 6); h.twinkle(690, 320, 12);
+    h.ell(470, 700, 210, 190);
+    h.circle(470, 420, 140);
+    h.line(362, 352, 350, 218, 440, 290); h.line(578, 352, 590, 218, 500, 290);
+    h.line(374, 322, 368, 254, 414, 292); h.line(566, 322, 572, 254, 526, 292);
+    h.arc(420, 430, 26, 0.1 * P, 0.9 * P); h.arc(520, 430, 26, 0.1 * P, 0.9 * P);
+    h.poly(458, 470, 482, 470, 470, 486); h.arc(458, 490, 12, 0, P); h.arc(482, 490, 12, 0, P);
+    h.mirror(() => { h.line(430, 476, 330, 462); h.line(430, 490, 328, 498); });
+    h.line(470, 284, 470, 330); h.line(440, 290, 446, 330); h.line(500, 290, 494, 330);
+    h.curve(286, 640, 320, 660, 306, 704); h.curve(276, 700, 312, 718, 300, 760); h.curve(654, 640, 620, 660, 634, 704); h.curve(664, 700, 628, 718, 640, 760);
+    h.ell(400, 878, 52, 28); h.ell(540, 878, 52, 28); [380, 400, 420, 520, 540, 560].forEach(px => h.line(px, 860, px, 874));
+    h.bez(672, 760, 790, 840, 650, 930, 380, 924); h.bez(682, 716, 830, 820, 670, 978, 372, 966); h.curve(380, 924, 346, 944, 372, 966);
+    h.circle(860, 820, 68); h.arc(830, 820, 56, -1, 1); h.arc(890, 820, 56, P - 1, P + 1); h.curve(808, 778, 860, 810, 912, 778);
+    h.bez(904, 868, 950, 910, 900, 960, 980, 984);
+  } },
+  { id: 'turtle', name: 'Sea Turtle', cat: 'Animals', foil: 'ocean', draw(h, x) {
+    h.ell(500, 214, 62, 80); h.circle(474, 194, 9); h.circle(526, 194, 9); h.arc(500, 228, 24, 0.2 * P, 0.8 * P);
+    h.petal(340, 380, -2.55, 0, 210, 56); h.petal(660, 380, -0.59, 0, 210, 56);
+    h.petal(372, 700, 2.4, 0, 140, 40); h.petal(628, 700, 0.74, 0, 140, 40);
+    h.poly(484, 772, 500, 830, 516, 772);
+    h.ell(500, 520, 200, 250); h.ell(500, 520, 180, 230);
+    x.save(); x.beginPath(); x.ellipse(500, 520, 178, 228, 0, 0, P * 2); x.clip();
+    const hex = (cx, cy, r) => { const p = []; for (let k = 0; k < 6; k++) p.push(cx + Math.cos(k * P / 3) * r, cy + Math.sin(k * P / 3) * r); h.poly(...p); };
+    hex(500, 520, 64); for (let k = 0; k < 6; k++) { const a = P / 6 + k * P / 3; hex(500 + Math.cos(a) * 111, 520 + Math.sin(a) * 111, 64); }
+    for (let k = 0; k < 6; k++) { const a = k * P / 3; hex(500 + Math.cos(a) * 192, 520 + Math.sin(a) * 192, 64); }
+    x.restore();
+    [[760, 300, 14], [790, 240, 20], [770, 170, 12], [220, 820, 16], [190, 760, 10]].forEach(([a, b, r]) => h.circle(a, b, r));
+    [[90, 1000], [150, 1000]].forEach(([bx, by]) => h.smooth([bx, by, bx - 26, 900, bx + 20, 800, bx - 22, 720]));
+    h.smooth([0, 975, 300, 960, 600, 980, 1000, 962]);
+    [[830, 840, 1], [180, 180, -1]].forEach(([cx, cy, d]) => { h.ell(cx, cy, 56, 30); h.poly(cx - d * 54, cy, cx - d * 94, cy - 28, cx - d * 94, cy + 28); h.circle(cx + d * 28, cy - 6, 6); });
+  } },
+  { id: 'penguins', name: 'Penguin Pals', cat: 'Animals', foil: 'silver', draw(h) {
+    const flake = (cx, cy, r) => { for (let k = 0; k < 3; k++) { const a = k * P / 3; h.line(cx - Math.cos(a) * r, cy - Math.sin(a) * r, cx + Math.cos(a) * r, cy + Math.sin(a) * r); } };
+    [[120, 120, 22], [300, 80, 14], [860, 110, 24], [680, 220, 14], [940, 420, 16], [80, 420, 16], [560, 90, 12]].forEach(([a, b, r]) => flake(a, b, r));
+    h.line(0, 840, 180, 806, 330, 832, 520, 796, 700, 822, 860, 792, 1000, 830);
+    h.line(830, 800, 880, 640, 920, 680, 960, 580, 1000, 650); h.line(880, 640, 894, 720); h.line(960, 580, 952, 680);
+    h.ell(380, 560, 150, 232); h.ell(380, 604, 100, 182);
+    h.circle(340, 420, 15); h.circle(420, 420, 15); h.circle(344, 424, 6); h.circle(416, 424, 6);
+    h.poly(360, 452, 400, 452, 380, 488);
+    h.petal(244, 486, P * 0.64, 0, 180, 32); h.petal(516, 486, P * 0.36, 0, 180, 32);
+    h.ell(330, 798, 42, 15); h.ell(430, 798, 42, 15);
+    h.smooth([272, 500, 380, 534, 488, 500]); h.smooth([272, 526, 380, 560, 488, 526]); h.line(452, 526, 470, 610, 498, 602, 478, 518);
+    h.ell(720, 690, 82, 128); h.ell(720, 714, 56, 98);
+    h.circle(698, 622, 9); h.circle(742, 622, 9); h.poly(708, 642, 732, 642, 720, 664);
+    h.petal(644, 660, P * 0.66, 0, 110, 22); h.petal(796, 660, P * 0.34, 0, 110, 22);
+    h.ell(694, 818, 28, 11); h.ell(746, 818, 28, 11);
+  } },
+  { id: 'spiral', name: 'Spiral Burst', cat: 'Patterns', foil: 'neon', draw(h) {
+    for (const dir of [1, -1]) for (let k = 0; k < 12; k++) { const p = []; for (let t = 0; t <= 60; t++) { const r = 24 + t * 7.4, a = k * P / 6 + dir * t * 0.055; p.push(500 + Math.cos(a) * r, 500 + Math.sin(a) * r); } h.smooth(p); }
+    [170, 330].forEach(r => h.circle(500, 500, r)); h.circle(500, 500, 24);
+    [[0, 0], [1000, 0], [0, 1000], [1000, 1000]].forEach(([a, b]) => [60, 100, 140].forEach(r => h.circle(a, b, r)));
+  } },
+  { id: 'hive', name: 'Hex Hive', cat: 'Patterns', foil: 'gold', draw(h) {
+    const r = 62, w = r * Math.sqrt(3);
+    const hex = (cx, cy, rr) => { const p = []; for (let k = 0; k < 6; k++) { const a = -P / 2 + k * P / 3; p.push(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } h.poly(...p); };
+    for (let row = -1; row < 12; row++) for (let col = -1; col < 11; col++) {
+      const cx = col * w + (row & 1 ? w / 2 : 0), cy = row * r * 1.5; hex(cx, cy, r);
+      const m = ((row + 4) * 7 + (col + 4) * 3) % 4;
+      if (m === 0) hex(cx, cy, r * 0.55); else if (m === 1) h.circle(cx, cy, r * 0.42);
+      else if (m === 2) for (let k = 0; k < 3; k++) { const a = -P / 2 + k * P * 2 / 3; h.line(cx, cy, cx + Math.cos(a) * r, cy + Math.sin(a) * r); }
+    }
+  } },
+  { id: 'opwaves', name: 'Op Art Waves', cat: 'Patterns', foil: 'rainbow', draw(h) {
+    for (let k = 0; k < 27; k++) {
+      const y0 = 10 + k * 37.5; let p = [], inside = null;
+      for (let px = -10; px <= 1010; px += 10) {
+        const inn = Math.hypot(px - 500, y0 - 500) < 300;
+        if (inside !== null && inn !== inside) { if (p.length > 2) h.smooth(p); p = []; }
+        inside = inn; p.push(px, y0 + Math.sin(px / 40 + (inn ? P : 0)) * (inn ? 16 : 11));
+      }
+      if (p.length > 2) h.smooth(p);
+    }
+    h.circle(500, 500, 300);
+  } },
+  { id: 'startiles', name: 'Star Tiles', cat: 'Patterns', foil: 'silver', draw(h) {
+    const s = 125, sq = (cx, cy, r, rot) => { const p = []; for (let k = 0; k < 4; k++) { const a = rot + P / 4 + k * P / 2; p.push(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } h.poly(...p); };
+    for (let i = 0; i <= 8; i++) for (let j = 0; j <= 8; j++) { const cx = i * s, cy = j * s; sq(cx, cy, 46, 0); sq(cx, cy, 46, P / 4); h.circle(cx, cy, 14); }
+    for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) { const cx = i * s + s / 2, cy = j * s + s / 2; sq(cx, cy, 26, P / 4); h.circle(cx, cy, 8); }
+  } },
+  { id: 'shards', name: 'Crystal Shards', cat: 'Patterns', foil: 'holo', draw(h) {
+    const r = mulberry32(9), n = 7, pts = [];
+    for (let j = 0; j <= n; j++) for (let i = 0; i <= n; i++) { const ex = i === 0 || i === n, ey = j === 0 || j === n; pts.push([i * 1000 / n + (ex ? 0 : (r() - 0.5) * 90), j * 1000 / n + (ey ? 0 : (r() - 0.5) * 90)]); }
+    const at = (i, j) => pts[j * (n + 1) + i];
+    const tri = (a, b, c) => { h.poly(a[0], a[1], b[0], b[1], c[0], c[1]); if (r() < 0.45) { const mx = (a[0] + b[0] + c[0]) / 3, my = (a[1] + b[1] + c[1]) / 3, k = 0.5; h.poly(mx + (a[0] - mx) * k, my + (a[1] - my) * k, mx + (b[0] - mx) * k, my + (b[1] - my) * k, mx + (c[0] - mx) * k, my + (c[1] - my) * k); } };
+    for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) { const a = at(i, j), b = at(i + 1, j), c = at(i, j + 1), d = at(i + 1, j + 1); if ((i + j) % 2) { tri(a, b, d); tri(a, d, c); } else { tri(a, b, c); tri(b, d, c); } }
   } }
 ];
 const BLANK = { id: 'blank', name: 'Blank board', foil: 'rainbow', draw() {} };
@@ -520,6 +706,9 @@ function drawHero() {
     if (t < 1) requestAnimationFrame(step);
   })(t0);
 }
+const CATS = ['All', 'Cities', 'Animals', 'Patterns', 'Adventure'];
+let catPick = 'All'; try { const c = localStorage.getItem('scratchpots.cat'); if (CATS.includes(c)) catPick = c; } catch (e) {}
+const thumbCache = new Map();
 function renderHome() {
   const mine = el('mine'); mine.innerHTML = '';
   const sorted = [...lib].sort((a, b) => b.updated - a.updated);
@@ -546,11 +735,15 @@ function renderHome() {
     });
     card.appendChild(del); mine.appendChild(card);
   }
+  const chips = el('catChips'); chips.innerHTML = '';
+  for (const c of CATS) { const b = document.createElement('button'); b.className = 'chip'; b.textContent = c; b.setAttribute('aria-pressed', c === catPick ? 'true' : 'false'); b.addEventListener('click', () => { catPick = c; try { localStorage.setItem('scratchpots.cat', c); } catch (e) {} renderHome(); }); chips.appendChild(b); }
   const g = el('designs'); g.innerHTML = '';
-  for (const d of [...DESIGNS, BLANK]) {
+  for (const d of [...DESIGNS, BLANK].filter(d => catPick === 'All' || d.cat === catPick)) {
     const card = document.createElement('div'); card.className = 'card';
     const open = document.createElement('button'); open.className = 'card-open'; open.setAttribute('aria-label', 'Scratch ' + d.name);
-    const th = document.createElement('div'); th.className = 'thumb'; th.appendChild(renderPreview(240, d, d.foil));
+    const th = document.createElement('div'); th.className = 'thumb';
+    if (!thumbCache.has(d.id)) thumbCache.set(d.id, renderPreview(240, d, d.foil).toDataURL());
+    const im = new Image(); im.src = thumbCache.get(d.id); im.alt = ''; im.style.cssText = 'display:block;width:100%;height:100%'; th.appendChild(im);
     const meta = document.createElement('div'); meta.className = 'meta';
     const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = d.name;
     const lv = document.createElement('span'); lv.className = 'lv'; lv.textContent = d.id === 'blank' ? 'Draw anything' : FOILS.find(f => f.id === d.foil).name;
