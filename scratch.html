@@ -106,6 +106,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
 .tool[aria-pressed="true"]{color:var(--ink)}
 .tool[aria-pressed="true"] .well{box-shadow:0 0 0 3px var(--accent)}
 .tool svg{display:block}
+.tool.move-on .well{background:var(--accent);color:var(--accent-ink);box-shadow:0 0 0 3px var(--accent)}
+.tool.move-on{color:var(--ink)}
+#cv.moving{cursor:grab}
+#cv.moving:active{cursor:grabbing}
 .tool-sep{width:1px;background:var(--line);margin:6px 2px;flex:none}
 .foil-sw{width:26px;height:26px;border-radius:50%;background:var(--rainbow);display:block}
 
@@ -180,6 +184,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance
     <div class="tools" role="toolbar" aria-label="Scratchers">
       <div id="sizes" style="display:contents"></div>
       <div class="tool-sep"></div>
+      <button class="tool" id="moveBtn" aria-pressed="false" aria-label="Move the picture without scratching"><span class="well"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 0 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.4l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15"/></svg></span>Move</button>
       <button class="tool" id="undoBtn"><span class="well"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></span>Undo</button>
       <button class="tool" id="foilBtn"><span class="well"><span class="foil-sw" id="foilSw"></span></span>Colours</button>
     </div>
@@ -781,7 +786,7 @@ function openScratch(rec) {
   S = { rec, d, revealed, rx, guide, mask: guideMask(d), strokes: rec.strokes || (rec.strokes = []), cur: null, last: null, lastT: 0, lastTick: Date.now() };
   setFoil(rec.foil, true);
   el('pName').textContent = rec.name; el('pPct').textContent = (rec.pct || 0) + '%';
-  paintSizes(); paintTopBtns();
+  setMove(false, true); paintTopBtns();
   show('play'); el('done').hidden = true;
   view.touched = false; pts.clear(); gest = null;
   resize();
@@ -831,7 +836,7 @@ function frame(now) {
   ctx.drawImage(coat(), view.ox, view.oy, W, W);
   if (prefs.guide) ctx.drawImage(S.guide, view.ox, view.oy, W, W);
   ctx.drawImage(S.revealed, view.ox, view.oy, W, W);
-  if (cursor && !S.cur) { ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cursor.x, cursor.y, Math.max(3, SIZES[prefs.size].w * s / 2), 0, P * 2); ctx.stroke(); }
+  if (cursor && !S.cur && !moveMode && !spaceDown) { ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cursor.x, cursor.y, Math.max(3, SIZES[prefs.size].w * s / 2), 0, P * 2); ctx.stroke(); }
 }
 const toBoard = p => ({ x: (p.x - view.ox) / view.s, y: (p.y - view.oy) / view.s });
 
@@ -893,7 +898,7 @@ cv.addEventListener('pointerdown', e => {
   try { cv.setPointerCapture(e.pointerId); } catch (err) {}
   soundInit();
   const p = local(e); pts.set(e.pointerId, p); viewAnim = null;
-  if (pts.size === 1) { gest = { type: 'scratch' }; beginStroke(p); }
+  if (pts.size === 1) { if (moveMode || spaceDown) gest = { type: 'pan', x0: p.x, y0: p.y, ox: view.ox, oy: view.oy }; else { gest = { type: 'scratch' }; beginStroke(p); } }
   else if (pts.size === 2) {
     if (S.cur) endStroke(S.cur.p.length > 12);
     const [a, b] = [...pts.values()];
@@ -906,6 +911,7 @@ cv.addEventListener('pointermove', e => {
   pts.set(e.pointerId, p);
   if (!gest) return;
   if (gest.type === 'scratch' && S.cur) { if (e.getCoalescedEvents) { const evs = e.getCoalescedEvents(); for (const ce of evs) extendStroke(local(ce)); } else extendStroke(p); }
+  else if (gest.type === 'pan') { view.ox = gest.ox + p.x - gest.x0; view.oy = gest.oy + p.y - gest.y0; view.touched = true; clampView(); kick(); }
   else if (gest.type === 'pinch' && pts.size >= 2) {
     const [a, b] = [...pts.values()], s = Math.min(maxS, Math.max(minS, gest.s0 * hyp(a, b) / gest.d0)), m = mid(a, b);
     const gx = (gest.m0.x - gest.ox) / gest.s0, gy = (gest.m0.y - gest.oy) / gest.s0;
@@ -917,7 +923,8 @@ function endPtr(e) {
   if (!pts.has(e.pointerId)) return;
   pts.delete(e.pointerId);
   if (gest && gest.type === 'scratch' && pts.size === 0) endStroke(true);
-  if (pts.size === 0) gest = null; else if (gest && gest.type === 'pinch') gest = { type: 'none' };
+  if (pts.size === 0) gest = null;
+  else if (gest && gest.type === 'pinch') { const q = [...pts.values()][0]; gest = moveMode ? { type: 'pan', x0: q.x, y0: q.y, ox: view.ox, oy: view.oy } : { type: 'none' }; }
 }
 cv.addEventListener('pointerup', endPtr); cv.addEventListener('pointercancel', endPtr); cv.addEventListener('lostpointercapture', endPtr);
 cv.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') { cursor = null; kick(); } });
@@ -927,12 +934,19 @@ document.addEventListener('visibilitychange', resetPointers); window.addEventLis
 new ResizeObserver(() => { if (!el('play').hidden) resize(); }).observe(board);
 
 /* tools */
+let moveMode = false, spaceDown = false;
+function setMove(on, quiet) {
+  moveMode = on; const b = el('moveBtn'); b.classList.toggle('move-on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  cv.classList.toggle('moving', on); paintSizes(); kick();
+  if (on && !quiet) toast('Move is on: drag to look around. Tap a scratcher to scratch again.');
+}
+el('moveBtn').addEventListener('click', () => setMove(!moveMode));
 function paintSizes() {
   const box = el('sizes'); box.innerHTML = '';
   SIZES.forEach((sz, i) => {
-    const b = document.createElement('button'); b.className = 'tool'; b.setAttribute('aria-pressed', i === prefs.size ? 'true' : 'false'); b.setAttribute('aria-label', sz.name + ' scratcher');
+    const b = document.createElement('button'); b.className = 'tool'; b.setAttribute('aria-pressed', i === prefs.size && !moveMode ? 'true' : 'false'); b.setAttribute('aria-label', sz.name + ' scratcher');
     b.innerHTML = '<span class="well"><span class="nib" style="width:' + sz.dot + 'px;height:' + sz.dot + 'px"></span></span>' + sz.name;
-    b.addEventListener('click', () => { prefs.size = i; savePrefs(); paintSizes(); kick(); });
+    b.addEventListener('click', () => { prefs.size = i; savePrefs(); if (moveMode) setMove(false); else paintSizes(); kick(); });
     box.appendChild(b);
   });
 }
@@ -952,10 +966,13 @@ el('zOut').addEventListener('click', () => zoomAt(1 / 1.6, cw / 2, ch / 2));
 el('zFit').addEventListener('click', () => { animateView(fitTarget()); view.touched = false; });
 el('backBtn').addEventListener('click', leave);
 function leave() { if (S) { if (S.cur) endStroke(true); saveLib(true); } S = null; show('home'); renderHome(); }
+document.addEventListener('keyup', e => { if (e.key === ' ') { spaceDown = false; cv.classList.toggle('moving', moveMode); kick(); } });
 document.addEventListener('keydown', e => {
   if (!S || el('play').hidden) return;
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
-  else if (e.key >= '1' && e.key <= '4') { prefs.size = +e.key - 1; savePrefs(); paintSizes(); }
+  else if (e.key >= '1' && e.key <= '4') { prefs.size = +e.key - 1; savePrefs(); if (moveMode) setMove(false); else paintSizes(); }
+  else if (e.key === 'm' || e.key === 'M') setMove(!moveMode);
+  else if (e.key === ' ' && !spaceDown) { e.preventDefault(); spaceDown = true; cv.classList.add('moving'); kick(); }
 });
 
 /* hidden colours sheet */
